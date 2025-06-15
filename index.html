@@ -1,152 +1,60 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
-</script>
-
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #fff8f0;
-    padding: 1rem;
-    margin: 0;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow-x: auto;
-    display: block;
-  }
-
-  th, td {
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    text-align: right;
-  }
-
-  input, button {
-    font-size: 1rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    margin-top: 0.3rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .login-box, .product {
-    max-width: 400px;
-    margin: auto;
-  }
-
-  button {
-    background-color: #c48a47;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  @media (min-width: 768px) {
-    input, button {
-      width: auto;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مخبز العطياني - الرئيسية</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f0;
+      text-align: center;
+      padding: 2rem;
     }
-    table {
-      display: table;
-    }
-  }
-</style>
 
+    h1 {
+      color: #c48a47;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: block;
+      background-color: #c48a47;
+      color: white;
+      text-decoration: none;
+      padding: 1rem;
+      margin: 0.8rem auto;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+    }
+  </style>
 </head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #fff8f0;
-    padding: 1rem;
-    margin: 0;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow-x: auto;
-    display: block;
-  }
-
-  th, td {
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    text-align: right;
-  }
-
-  input, button {
-    font-size: 1rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    margin-top: 0.3rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .login-box, .product {
-    max-width: 400px;
-    margin: auto;
-  }
-
-  button {
-    background-color: #c48a47;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  @media (min-width: 768px) {
-    input, button {
-      width: auto;
-    }
-    table {
-      display: table;
-    }
-  }
-</style>
-
 <body>
 
-  <header>
-    <h1>مخبز العطياني</h1>
-    <p>تطبيق مبيعات يومية (نسخة تجريبية)</p>
-  </header>
+  <script>
+    const user = localStorage.getItem("loggedInUser");
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  </script>
 
-  <div class="product">
-    <h2>خبز فينو</h2>
-    <p>السعر: 0.50 دينار</p>
-  </div>
-  <div class="product">
-    <h2>شراك</h2>
-    <p>السعر: 0.30 دينار</p>
-  </div>
-  <div class="product">
-    <h2>قرشلة</h2>
-    <p>السعر: 0.40 دينار</p>
-  </div>
-  <div class="product">
-    <h2>خبز رخو</h2>
-    <p>السعر: 0.25 دينار</p>
-  </div>
+  <h1>👨‍🍳 مرحبًا بك في مخبز العطياني</h1>
+
+  <a class="btn" href="sales.html">📦 مبيعات اليوم</a>
+  <a class="btn" href="dashboard.html">📊 تقارير الأيام السابقة</a>
+  <a class="btn" href="products.html">📋 إدارة المنتجات</a>
+  <a class="btn" href="settings.html">🔑 تغيير كلمة المرور</a>
+  <a class="btn" href="backup.html">📤 النسخ الاحتياطي والاستعادة</a>
+  <a class="btn" href="#" onclick="logout()">🚪 تسجيل الخروج</a>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    }
+  </script>
 
 </body>
-<button onclick="logout()">🚪 تسجيل الخروج</button>
-
-<script>
-  function logout() {
-    localStorage.removeItem("loggedInUser");
-    window.location.href = "login.html";
-  }
-</script>
-
 </html>
