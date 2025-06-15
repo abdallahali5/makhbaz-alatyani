@@ -200,6 +200,15 @@ const products = JSON.parse(localStorage.getItem("products") || "null") || defau
   </script>
 <!-- مكتبة jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<button onclick="goHome()" style="margin-top: 1rem; background-color: #888; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px;">
+  ⬅️ الرجوع إلى الرئيسية
+</button>
+
+<script>
+  function goHome() {
+    window.location.href = "index.html";
+  }
+</script>
 
 </body>
 </html>
