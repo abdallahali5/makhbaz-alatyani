@@ -52,14 +52,16 @@
   <button onclick="saveDay()">حفظ التقرير</button>
 
   <script>
-    const products = [
-      { name: "خبز فينو", price: 0.50 },
-      { name: "شراك", price: 0.30 },
-      { name: "قرشلة", price: 0.40 },
-      { name: "خبز رخو", price: 0.25 },
-      { name: "خبز لبناني", price: 0.35 },
-      { name: "خبز النور", price: 0.45 }
-    ];
+    const defaultProducts = [
+  { name: "خبز فينو", price: 0.50 },
+  { name: "شراك", price: 0.30 },
+  { name: "قرشلة", price: 0.40 },
+  { name: "خبز رخو", price: 0.25 },
+  { name: "خبز لبناني", price: 0.35 },
+  { name: "خبز النور", price: 0.45 }
+];
+
+const products = JSON.parse(localStorage.getItem("products") || "null") || defaultProducts;
 
     function generateTable() {
       const table = document.getElementById("salesTable");
