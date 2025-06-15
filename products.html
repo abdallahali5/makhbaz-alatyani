@@ -38,6 +38,14 @@
     window.location.href = "login.html"; // إعادة التوجيه إذا لم يتم تسجيل الدخول
   }
 </script>
+<button onclick="logout()">🚪 تسجيل الخروج</button>
+
+<script>
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+</script>
 
   <h2>إدارة المنتجات</h2>
 
