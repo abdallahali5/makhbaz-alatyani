@@ -119,6 +119,20 @@
     y += 15;
     doc.setFontSize(13);
     doc.text(`الإجمالي الكلي: ${total.toFixed(3)} دينار`, 10, y, { align: "right" });
+    const date = new Date().toLocaleDateString("ar-EG");
+    const details = products
+      .map((product, index) => {
+        const input = document.querySelector(`input[data-index="${index}"]`);
+        const qty = parseInt(input.value) || 0;
+        const subtotal = qty * product.price;
+        return qty > 0 ? `${product.name} - ${qty} × ${product.price} = ${subtotal.toFixed(3)} دينار` : '';
+      })
+      .filter(Boolean)
+      .join("\\n");
+
+    const saved = JSON.parse(localStorage.getItem("reports") || "[]");
+    saved.push({ date, total, details });
+    localStorage.setItem("reports", JSON.stringify(saved));
 
     // حفظ الملف
     doc.save("تقرير-مخبز-العطياني.pdf");
