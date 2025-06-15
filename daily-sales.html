@@ -2,14 +2,20 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>المبيعات اليومية - مخبز العطياني</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #fff8f0;
       padding: 1rem;
-      text-align: center;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h2 {
+      color: #c48a47;
+      margin-bottom: 1rem;
     }
 
     table {
@@ -19,37 +25,62 @@
     }
 
     th, td {
-      padding: 0.6rem;
       border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: right;
     }
 
-    input[type="number"] {
-      width: 80px;
-      padding: 0.4rem;
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 0.3rem;
     }
 
     button {
-      padding: 0.7rem 1.5rem;
-      margin: 0.5rem;
       background-color: #c48a47;
       color: white;
+      padding: 0.6rem 1rem;
       border: none;
       border-radius: 6px;
-      font-size: 1rem;
+      margin: 0.4rem 0.2rem;
       cursor: pointer;
     }
 
     .total {
       font-weight: bold;
       font-size: 1.2rem;
+    }
+
+    .box {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    #message {
       margin-top: 1rem;
+      color: green;
     }
   </style>
 </head>
 <body>
 
-  <h2>🧾 مبيعات اليوم</h2>
+<script>
+  const user = localStorage.getItem("loggedInUser");
+  if (!user) window.location.href = "login.html";
+</script>
 
+<h2>📦 المبيعات اليومية</h2>
+
+<div class="box">
+  <h3>➕ إضافة منتج جديد</h3>
+  <input type="text" id="newName" placeholder="اسم المنتج">
+  <input type="number" id="newPrice" placeholder="السعر">
+  <button onclick="addNewProduct()">إضافة</button>
+</div>
+
+<div class="box">
   <table id="salesTable">
     <thead>
       <tr>
@@ -59,17 +90,10 @@
         <th>الإجمالي</th>
       </tr>
     </thead>
-    <tbody id="salesBody"></tbody>
+    <tbody></tbody>
   </table>
 
-  <div class="total">المجموع الكلي: <span id="total">0</span> دينار</div>
+  <div class="total">💰 المجموع الكلي: <span id="total">0</span> ريال</div>
 
-  <button onclick="saveToday()">💾 حفظ اليوم</button>
-  <button onclick="downloadPDF()">📄 تحميل PDF</button>
-  <button onclick="goHome()">⬅️ الصفحة الرئيسية</button>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <script>
-    const products = JSON.parse(localStorage.getItem("products")) || [];
-    const tbody = document.getElementBy
+  <button onclick="saveDay()">💾 حفظ التقرير</button>
+  <button onclick="goHome()" style="background-color
