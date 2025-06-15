@@ -90,13 +90,46 @@
       document.getElementById("total").textContent = total.toFixed(3);
     }
 
-    function saveDay() {
-      alert("✅ تم حفظ مبيعات اليوم! (نسخة تجريبية)");
-      // لاحقًا: سيتم توليد تقرير PDF
-    }
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  async function saveDay() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let y = 20;
+    doc.setFont("Helvetica");
+    doc.setFontSize(14);
+    doc.text("تقرير مبيعات اليوم - مخبز العطياني", 105, y, { align: "center" });
+    y += 10;
+
+    doc.setFontSize(12);
+    let total = 0;
+
+    products.forEach((product, index) => {
+      const input = document.querySelector(`input[data-index="${index}"]`);
+      const qty = parseInt(input.value) || 0;
+      const subtotal = qty * product.price;
+      total += subtotal;
+      if (qty > 0) {
+        y += 10;
+        doc.text(`المنتج: ${product.name} | السعر: ${product.price.toFixed(3)} | الكمية: ${qty} | المجموع: ${subtotal.toFixed(3)} دينار`, 10, y, { align: "right" });
+      }
+    });
+
+    y += 15;
+    doc.setFontSize(13);
+    doc.text(`الإجمالي الكلي: ${total.toFixed(3)} دينار`, 10, y, { align: "right" });
+
+    // حفظ الملف
+    doc.save("تقرير-مخبز-العطياني.pdf");
+  }
+</script>
+
 
     window.onload = generateTable;
   </script>
+<!-- مكتبة jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </body>
 </html>
