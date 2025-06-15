@@ -57,4 +57,13 @@
   </div>
 
 </body>
+<button onclick="logout()">🚪 تسجيل الخروج</button>
+
+<script>
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+</script>
+
 </html>
