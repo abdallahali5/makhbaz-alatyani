@@ -30,6 +30,12 @@
   </style>
 </head>
 <body>
+<script>
+  const user = localStorage.getItem("loggedInUser");
+  if (!user) {
+    window.location.href = "login.html"; // إعادة التوجيه إذا لم يتم تسجيل الدخول
+  }
+</script>
 
   <h2>لوحة تقارير الأيام السابقة</h2>
 
