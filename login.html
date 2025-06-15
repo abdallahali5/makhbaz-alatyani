@@ -70,15 +70,18 @@
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
 
-      const users = {
-        admin: "012345678",
-        mohammad: "012345678"
-      };
+     const savedPasswords = JSON.parse(localStorage.getItem("userPasswords")) || {
+  admin: "012345678",
+  mohammad: "012345678"
+};
 
-      if (users[user] === pass) {
-        localStorage.setItem("loggedInUser", user);
-        window.location.href = "index.html";
-      } else {
+if (savedPasswords[user] === pass) {
+  localStorage.setItem("loggedInUser", user);
+  window.location.href = "index.html";
+} else {
+  document.getElementById('error').textContent = "بيانات الدخول غير صحيحة";
+}
+ else {
         document.getElementById('error').textContent = "بيانات الدخول غير صحيحة";
       }
     }
