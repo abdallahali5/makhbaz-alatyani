@@ -73,9 +73,24 @@
   </div>
 
   <script>
-    function login() {
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
+    <script>
+  function login() {
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value.trim();
+
+    const savedPasswords = JSON.parse(localStorage.getItem("userPasswords")) || {
+      admin: "012345678",
+      mohammad: "012345678"
+    };
+
+    if (savedPasswords[user] === pass) {
+      localStorage.setItem("loggedInUser", user);
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("error").textContent = "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
+    }
+  }
+</script>
 
      const savedPasswords = JSON.parse(localStorage.getItem("userPasswords")) || {
   admin: "012345678",
