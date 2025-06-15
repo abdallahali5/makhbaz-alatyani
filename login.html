@@ -1,66 +1,56 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
-</script>
-
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #fff8f0;
-    padding: 1rem;
-    margin: 0;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow-x: auto;
-    display: block;
-  }
-
-  th, td {
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    text-align: right;
-  }
-
-  input, button {
-    font-size: 1rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    margin-top: 0.3rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .login-box, .product {
-    max-width: 400px;
-    margin: auto;
-  }
-
-  button {
-    background-color: #c48a47;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  @media (min-width: 768px) {
-    input, button {
-      width: auto;
+  <title>تسجيل الدخول - مخبز العطياني</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
-    table {
-      display: table;
-    }
-  }
-</style>
 
+    .login-box {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      background-color: #c48a47;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #error {
+      color: red;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
 
@@ -69,54 +59,27 @@
     <input type="text" id="username" placeholder="اسم المستخدم" />
     <input type="password" id="password" placeholder="كلمة المرور" />
     <button onclick="login()">دخول</button>
-    <p id="error" style="color:red;"></p>
+    <p id="error"></p>
   </div>
 
- <script>
-  function login() {
-    const user = document.getElementById("username").value.trim();
-    const pass = document.getElementById("password").value.trim();
+  <script>
+    function login() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
 
-    const savedPasswords = JSON.parse(localStorage.getItem("userPasswords")) || {
-      admin: "012345678",
-      mohammad: "012345678"
-    };
+      const savedPasswords = JSON.parse(localStorage.getItem("userPasswords")) || {
+        admin: "012345678",
+        mohammad: "012345678"
+      };
 
-    if (savedPasswords[user] === pass) {
-      localStorage.setItem("loggedInUser", user);
-      window.location.href = "index.html";
-    } else {
-      document.getElementById("error").textContent = "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
-    }
-  }
-</script>
-
-
-     const savedPasswords = JSON.parse(localStorage.getItem("userPasswords")) || {
-  admin: "012345678",
-  mohammad: "012345678"
-};
-
-if (savedPasswords[user] === pass) {
-  localStorage.setItem("loggedInUser", user);
-  window.location.href = "index.html";
-} else {
-  document.getElementById('error').textContent = "بيانات الدخول غير صحيحة";
-}
- else {
-        document.getElementById('error').textContent = "بيانات الدخول غير صحيحة";
+      if (savedPasswords[user] === pass) {
+        localStorage.setItem("loggedInUser", user);
+        window.location.href = "index.html";
+      } else {
+        document.getElementById("error").textContent = "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
       }
     }
   </script>
-<button onclick="logout()">🚪 تسجيل الخروج</button>
-
-<script>
-  function logout() {
-    localStorage.removeItem("loggedInUser");
-    window.location.href = "login.html";
-  }
-</script>
-<p id="error" style="color:red;"></p>
 
 </body>
 </html>
