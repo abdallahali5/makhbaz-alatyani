@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إعدادات الحساب</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f0;
+      padding: 2rem;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    input, button {
+      display: block;
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #c48a47;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    p {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>تغيير كلمة المرور</h2>
+
+  <input type="password" id="oldPass" placeholder="كلمة المرور الحالية">
+  <input type="password" id="newPass" placeholder="كلمة المرور الجديدة">
+  <input type="password" id="confirmPass" placeholder="تأكيد كلمة المرور الجديدة">
+  <button onclick="changePassword()">تحديث</button>
+
+  <p id="msg"></p>
+
+  <script>
+    const user = localStorage.getItem("loggedInUser");
+    if (!user) {
+      window.location.href = "login.html";
+    }
+
+    let passwords = JSON.parse(localStorage.getItem("userPasswords")) || {
+      admin: "012345678",
+      mohammad: "012345678"
+    };
+
+    function changePassword() {
+      const oldPass = document.getElementById("oldPass").value;
+      const newPass = document.getElementById("newPass").value;
+      const confirmPass = document.getElementById("confirmPass").value;
+      const msg = document.getElementById("msg");
+
+      if (passwords[user] !== oldPass) {
+        msg.textContent = "❌ كلمة المرور الحالية غير صحيحة";
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        msg.textContent = "❌ كلمة المرور الجديدة غير متطابقة";
+        return;
+      }
+
+      passwords[user] = newPass;
+      localStorage.setItem("userPasswords", JSON.stringify(passwords));
+      msg.style.color = "green";
+      msg.textContent = "✅ تم تغيير كلمة المرور بنجاح";
+    }
+  </script>
+
+</body>
+</html>
