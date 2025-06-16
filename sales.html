@@ -5,7 +5,7 @@
   <title>المبيعات اليومية - مخبز العطياني</title>
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #fff8f0;
       padding: 20px;
       max-width: 900px;
@@ -14,39 +14,38 @@
 
     h2 {
       color: #c48a47;
-      margin-bottom: 1rem;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 1rem;
+      margin-top: 20px;
     }
 
     th, td {
       border: 1px solid #ccc;
-      padding: 0.5rem;
-      text-align: center;
+      padding: 8px;
+      text-align: right;
     }
 
-    input[type="number"] {
-      width: 60px;
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 6px;
+    }
+
+    button {
+      background-color: #c48a47;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .total {
       font-weight: bold;
       font-size: 1.2rem;
-      text-align: right;
-      margin-top: 1rem;
-    }
-
-    button {
-      background: #c48a47;
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
-      cursor: pointer;
       margin-top: 1rem;
     }
   </style>
@@ -64,48 +63,79 @@
       <th>الإجمالي (₪)</th>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <td>خبز</td>
-      <td>4</td>
-      <td><input type="number" value="0" min="0" onchange="updateTotal()"></td>
-      <td class="subtotal">0</td>
-    </tr>
-    <tr>
-      <td>شراك</td>
-      <td>3</td>
-      <td><input type="number" value="0" min="0" onchange="updateTotal()"></td>
-      <td class="subtotal">0</td>
-    </tr>
-    <tr>
-      <td>فينو</td>
-      <td>2</td>
-      <td><input type="number" value="0" min="0" onchange="updateTotal()"></td>
-      <td class="subtotal">0</td>
-    </tr>
-  </tbody>
+  <tbody></tbody>
 </table>
+
+<br>
+
+<h3>➕ إضافة منتج جديد</h3>
+<input type="text" id="name" placeholder="اسم المنتج">
+<input type="number" id="price" placeholder="السعر (₪)">
+<input type="number" id="quantity" placeholder="الكمية">
+<br>
+<button onclick="addProduct()">➕ إضافة</button>
 
 <div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
 
-<button onclick="saveReport()">💾 حفظ التقرير</button>
-
 <script>
-  function updateTotal() {
-    let total = 0;
-    const rows = document.querySelectorAll("#salesTable tbody tr");
+  const tbody = document.querySelector("tbody");
+  const totalEl = document.getElementById("total");
 
-    rows.forEach(row => {
-      const price = parseFloat(row.cells[1].textContent);
-      const qty = parseInt(row.cells[2].querySelector("input").value) || 0;
-      const subtotal = price * qty;
-      row.cells[3].textContent = subtotal.toFixed(2);
-      total += subtotal;
-    });
+  function addProduct() {
+    const name = document.getElementById("name").value.trim();
+    const price = parseFloat(document.getElementById("price").value);
+    const quantity = parseInt(document.getElementById("quantity").value);
 
-    document.getElementById("total").textContent = total.toFixed(2);
+    if (!name || isNaN(price) || isNaN(quantity) || quantity <= 0) {
+      alert("الرجاء إدخال جميع الحقول بشكل صحيح.");
+      return;
+    }
+
+    const subtotal = price * quantity;
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${name}</td>
+      <td>${price.toFixed(2)}</td>
+      <td>${quantity}</td>
+      <td>${subtotal.toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+
+    updateTotal();
+    clearInputs();
   }
 
-  function saveReport() {
-    const date = new Date().toLocaleDateString("ar-EG");
-    const user = localStorage.get
+  function updateTotal() {
+    let total = 0;
+    document.querySelectorAll("tbody tr").forEach(row => {
+      const subtotal = parseFloat(row.cells[3].textContent);
+      total += subtotal;
+    });
+    totalEl.textContent = total.toFixed(2);
+  }
+
+  function clearInputs() {
+    document.getElementById("name").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("quantity").value = "";
+  }
+</script>
+
+</body>
+</html>
+<!-- باقي الكود كما هو فوق -->
+
+<div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
+
+<button onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
+
+<script>
+  // ... نفس السكربت السابق ...
+
+  function goHome() {
+    window.location.href = "index.html";
+  }
+</script>
+
+</body>
+</html>
