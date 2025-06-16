@@ -31,7 +31,7 @@
     input[type="text"], input[type="number"] {
       width: 100%;
       padding: 6px;
-      margin-bottom: 8px;
+      margin: 5px 0;
     }
 
     button {
@@ -50,15 +50,15 @@
       margin-top: 1rem;
     }
 
-    .back {
-      background: gray;
+    .back-button {
+      background-color: gray;
       margin-top: 15px;
     }
   </style>
 </head>
 <body>
 
-<h2>🧾 المبيعات اليومية - مخبز العطياني</h2>
+<h2>🧾 المبيعات اليومية</h2>
 
 <table id="salesTable">
   <thead>
@@ -81,7 +81,7 @@
 
 <div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
 
-<button class="back" onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
+<button class="back-button" onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
 
 <script>
   const tbody = document.querySelector("tbody");
@@ -100,3 +100,36 @@
     const subtotal = price * quantity;
     const row = document.createElement("tr");
     row.innerHTML = `
+      <td>${name}</td>
+      <td>${price.toFixed(2)}</td>
+      <td>${quantity}</td>
+      <td>${subtotal.toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+
+    updateTotal();
+    clearInputs();
+  }
+
+  function updateTotal() {
+    let total = 0;
+    document.querySelectorAll("tbody tr").forEach(row => {
+      const subtotal = parseFloat(row.cells[3].textContent);
+      total += subtotal;
+    });
+    totalEl.textContent = total.toFixed(2);
+  }
+
+  function clearInputs() {
+    document.getElementById("name").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("quantity").value = "";
+  }
+
+  function goHome() {
+    window.location.href = "index.html";
+  }
+</script>
+
+</body>
+</html>
