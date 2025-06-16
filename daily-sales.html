@@ -71,6 +71,7 @@
       <th>السعر (₪)</th>
       <th>الكمية</th>
       <th>الإجمالي (₪)</th>
+      <th>📆 التاريخ / الوقت</th>
       <th>❌</th>
     </tr>
   </thead>
@@ -105,12 +106,13 @@
         <td>${item.price.toFixed(2)}</td>
         <td><input type="number" value="${item.quantity}" min="0" onchange="updateRow(this, ${index})"></td>
         <td class="subtotal">${(item.price * item.quantity).toFixed(2)}</td>
+        <td>${item.date || ""} ${item.time || ""}</td>
         <td><button class="delete" onclick="deleteRow(${index})">🗑️</button></td>
       `;
       tbody.appendChild(row);
     });
     updateTotal();
-  }
+  
 
   function addProduct() {
     const name = document.getElementById("name").value.trim();
