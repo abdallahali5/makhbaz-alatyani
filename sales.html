@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحة المنتجات</title>
+    <title>صفحة المبيعات اليومية</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -32,7 +32,7 @@
             font-size: 20px;
             font-weight: bold;
         }
-        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn {
+        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn, .delete-btn {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -41,7 +41,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover {
+        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover {
             background-color: #45a049;
         }
         .log {
@@ -60,13 +60,13 @@
 <body>
 
 <div class="container">
-    <h2>صفحة المنتجات</h2>
+    <h2>صفحة المبيعات اليومية</h2>
 
     <!-- زر إضافة منتج -->
     <button class="add-product-btn" onclick="addProduct()">إضافة منتج</button>
 
-    <!-- جدول المنتجات -->
-    <table id="products-table">
+    <!-- جدول المبيعات -->
+    <table id="sales-table">
         <thead>
             <tr>
                 <th>المنتج</th>
@@ -107,8 +107,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-    // قائمة المنتجات
-    let products = [];
+    // استرجاع المنتجات من LocalStorage إذا كانت موجودة
+    let products = JSON.parse(localStorage.getItem('products')) || [];
 
     // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
     function updateProductTotal() {
@@ -139,6 +139,8 @@
             };
 
             products.push(product);
+            // حفظ المنتجات في LocalStorage
+            localStorage.setItem('products', JSON.stringify(products));
             renderProducts();
         } else {
             alert("يرجى ملء جميع الحقول بشكل صحيح.");
@@ -147,7 +149,7 @@
 
     // عرض المنتجات في الجدول
     function renderProducts() {
-        const tableBody = document.querySelector("#products-table tbody");
+        const tableBody = document.querySelector("#sales-table tbody");
         tableBody.innerHTML = ""; // مسح الجدول الحالي
 
         products.forEach((product, index) => {
@@ -158,7 +160,8 @@
                 <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
                 <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
                 <td>${(product.stock * product.price).toFixed(2)}</td>
-                <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button></td>
+                <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
+                    <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
             `;
 
             tableBody.appendChild(row);
@@ -169,7 +172,7 @@
 
     // تعديل المنتج
     function editProduct(index) {
-        const row = document.querySelector(`#products-table tbody tr:nth-child(${index + 1})`);
+        const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
         const name = row.cells[0];
         const stock = row.cells[1].querySelector('input');
         const price = row.cells[2].querySelector('input');
@@ -187,7 +190,7 @@
 
     // حفظ التعديل
     function saveProduct(index) {
-        const row = document.querySelector(`#products-table tbody tr:nth-child(${index + 1})`);
+        const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
         const product = products[index];
 
         product.name = row.cells[0].textContent;
@@ -202,12 +205,24 @@
         editBtn.textContent = "تعديل";
         editBtn.setAttribute('onclick', `editProduct(${index})`);
 
+        // حفظ التغييرات في LocalStorage
+        localStorage.setItem('products', JSON.stringify(products));
         renderProducts();
     }
 
     // تحديث البيانات بعد التعديل
     function updateProduct(index, field, value) {
         products[index][field] = isNaN(value) ? value : parseFloat(value);
+        // حفظ التغييرات في LocalStorage
+        localStorage.setItem('products', JSON.stringify(products));
+        renderProducts();
+    }
+
+    // حذف المنتج
+    function deleteProduct(index) {
+        products.splice(index, 1);
+        // حفظ التغييرات في LocalStorage
+        localStorage.setItem('products', JSON.stringify(products));
         renderProducts();
     }
 
