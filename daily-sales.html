@@ -1,99 +1,102 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
   <title>المبيعات اليومية - مخبز العطياني</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #fff8f0;
-      padding: 1rem;
+      background: #fff8f0;
+      padding: 20px;
       max-width: 900px;
       margin: auto;
     }
 
     h2 {
       color: #c48a47;
-      margin-bottom: 1rem;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 1rem;
+      margin-top: 20px;
     }
 
     th, td {
       border: 1px solid #ccc;
-      padding: 0.5rem;
+      padding: 8px;
       text-align: right;
     }
 
-    input[type="number"], input[type="text"] {
+    input[type="text"], input[type="number"] {
       width: 100%;
-      padding: 0.3rem;
+      padding: 6px;
+      margin-bottom: 8px;
     }
 
     button {
       background-color: #c48a47;
       color: white;
-      padding: 0.6rem 1rem;
       border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
       border-radius: 6px;
-      margin: 0.4rem 0.2rem;
       cursor: pointer;
     }
 
     .total {
       font-weight: bold;
       font-size: 1.2rem;
-    }
-
-    .box {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-
-    #message {
       margin-top: 1rem;
-      color: green;
+    }
+
+    .back {
+      background: gray;
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
 
+<h2>🧾 المبيعات اليومية - مخبز العطياني</h2>
+
+<table id="salesTable">
+  <thead>
+    <tr>
+      <th>المنتج</th>
+      <th>السعر (₪)</th>
+      <th>الكمية</th>
+      <th>الإجمالي (₪)</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<h3>➕ إضافة منتج جديد</h3>
+<input type="text" id="name" placeholder="اسم المنتج">
+<input type="number" id="price" placeholder="السعر (₪)">
+<input type="number" id="quantity" placeholder="الكمية">
+<br>
+<button onclick="addProduct()">➕ إضافة</button>
+
+<div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
+
+<button class="back" onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
+
 <script>
-  const user = localStorage.getItem("loggedInUser");
-  if (!user) window.location.href = "login.html";
-</script>
+  const tbody = document.querySelector("tbody");
+  const totalEl = document.getElementById("total");
 
-<h2>📦 المبيعات اليومية</h2>
+  function addProduct() {
+    const name = document.getElementById("name").value.trim();
+    const price = parseFloat(document.getElementById("price").value);
+    const quantity = parseInt(document.getElementById("quantity").value);
 
-<div class="box">
-  <h3>➕ إضافة منتج جديد</h3>
-  <input type="text" id="newName" placeholder="اسم المنتج">
-  <input type="number" id="newPrice" placeholder="السعر">
-  <button onclick="addNewProduct()">إضافة</button>
-</div>
+    if (!name || isNaN(price) || isNaN(quantity) || quantity <= 0) {
+      alert("الرجاء إدخال جميع الحقول بشكل صحيح.");
+      return;
+    }
 
-<div class="box">
-  <table id="salesTable">
-    <thead>
-      <tr>
-        <th>المنتج</th>
-        <th>السعر</th>
-        <th>الكمية</th>
-        <th>الإجمالي</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div class="total">💰 المجموع الكلي: <span id="total">0</span> ريال</div>
-
-  <button onclick="saveDay()">💾 حفظ التقرير</button>
-  <button onclick="goHome()" style="background-color
+    const subtotal = price * quantity;
+    const row = document.createElement("tr");
+    row.innerHTML = `
