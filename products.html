@@ -32,7 +32,7 @@
             font-size: 20px;
             font-weight: bold;
         }
-        .back-btn {
+        .back-btn, .pdf-btn, .edit-btn, .save-btn {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -41,7 +41,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .back-btn:hover {
+        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover {
             background-color: #45a049;
         }
         .log {
@@ -82,21 +82,159 @@
                 <th>الكمية المتوفرة</th>
                 <th>السعر (شيكل)</th>
                 <th>إجمالي السعر (شيكل)</th>
+                <th>العمليات</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>خبز</td>
+            <tr id="bread-row">
+                <td id="bread-name">خبز</td>
                 <td><input type="number" id="bread-stock" value="50" min="0" oninput="updateProductTotal()"></td>
                 <td><input type="number" id="bread-price" value="5" min="0" oninput="updateProductTotal()"></td>
                 <td id="bread-total-price">250</td>
+                <td><button class="edit-btn" onclick="editProduct('bread')">تعديل</button></td>
             </tr>
-            <tr>
-                <td>كعك</td>
+            <tr id="cake-row">
+                <td id="cake-name">كعك</td>
                 <td><input type="number" id="cake-stock" value="30" min="0" oninput="updateProductTotal()"></td>
                 <td><input type="number" id="cake-price" value="10" min="0" oninput="updateProductTotal()"></td>
                 <td id="cake-total-price">300</td>
+                <td><button class="edit-btn" onclick="editProduct('cake')">تعديل</button></td>
             </tr>
-            <tr>
-                <td>معجنات</td>
-                <td><input type="number" id="pastry-stock" value="20" min="0" oni
+            <tr id="pastry-row">
+                <td id="pastry-name">معجنات</td>
+                <td><input type="number" id="pastry-stock" value="20" min="0" oninput="updateProductTotal()"></td>
+                <td><input type="number" id="pastry-price" value="7" min="0" oninput="updateProductTotal()"></td>
+                <td id="pastry-total-price">140</td>
+                <td><button class="edit-btn" onclick="editProduct('pastry')">تعديل</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- إجمالي الكمية والسعر الكلي -->
+    <div class="total">
+        الكمية الكلية: <span id="total-quantity">100</span> وحدة
+        <br>
+        السعر الكلي: <span id="total-price">690</span> شيكل
+    </div>
+
+    <!-- زر الرجوع -->
+    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
+
+    <!-- زر حفظ PDF -->
+    <button class="pdf-btn" onclick="downloadPDF()">حفظ القائمه اليومية PDF</button>
+
+    <!-- سجل العمليات -->
+    <div class="log" id="sales-log">
+        <h3>سجل العمليات:</h3>
+        <ul id="log-list">
+            <!-- يتم عرض العمليات هنا -->
+        </ul>
+    </div>
+</div>
+
+<!-- تحميل مكتبة jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
+    function updateProductTotal() {
+        const breadStock = document.getElementById('bread-stock').value;
+        const cakeStock = document.getElementById('cake-stock').value;
+        const pastryStock = document.getElementById('pastry-stock').value;
+
+        const breadPrice = document.getElementById('bread-price').value;
+        const cakePrice = document.getElementById('cake-price').value;
+        const pastryPrice = document.getElementById('pastry-price').value;
+
+        // حساب إجمالي السعر لكل منتج
+        const breadTotalPrice = breadStock * breadPrice;
+        const cakeTotalPrice = cakeStock * cakePrice;
+        const pastryTotalPrice = pastryStock * pastryPrice;
+
+        // تحديث إجمالي السعر لكل منتج
+        document.getElementById('bread-total-price').textContent = breadTotalPrice;
+        document.getElementById('cake-total-price').textContent = cakeTotalPrice;
+        document.getElementById('pastry-total-price').textContent = pastryTotalPrice;
+
+        // حساب الكمية الكلية والسعر الكلي
+        const totalQuantity = parseInt(breadStock) + parseInt(cakeStock) + parseInt(pastryStock);
+        const totalPrice = breadTotalPrice + cakeTotalPrice + pastryTotalPrice;
+
+        // تحديث الكمية والسعر الكلي
+        document.getElementById('total-quantity').textContent = totalQuantity;
+        document.getElementById('total-price').textContent = totalPrice;
+    }
+
+    // الرجوع إلى الصفحة الرئيسية
+    function goBack() {
+        window.location.href = "index.html"; // تأكد من تعديل الرابط حسب هيكل موقعك
+    }
+
+    // تعديل المنتج
+    function editProduct(product) {
+        const row = document.getElementById(`${product}-row`);
+        const name = document.getElementById(`${product}-name`);
+        const stock = document.getElementById(`${product}-stock`);
+        const price = document.getElementById(`${product}-price`);
+
+        // تمكين الحقول لتعديل المنتج
+        name.contentEditable = true;
+        stock.disabled = false;
+        price.disabled = false;
+
+        // تغيير الزر "تعديل" إلى "حفظ التعديل"
+        const editBtn = row.querySelector('.edit-btn');
+        editBtn.textContent = "حفظ التعديل";
+        editBtn.setAttribute('onclick', `saveProduct('${product}')`);
+    }
+
+    // حفظ التعديل على المنتج
+    function saveProduct(product) {
+        const row = document.getElementById(`${product}-row`);
+        const name = document.getElementById(`${product}-name`);
+        const stock = document.getElementById(`${product}-stock`);
+        const price = document.getElementById(`${product}-price`);
+
+        // حفظ التغييرات
+        name.contentEditable = false;
+        stock.disabled = true;
+        price.disabled = true;
+
+        // تحديث إجمالي السعر
+        updateProductTotal();
+
+        // تغيير الزر "حفظ التعديل" إلى "تعديل"
+        const editBtn = row.querySelector('.edit-btn');
+        editBtn.textContent = "تعديل";
+        editBtn.setAttribute('onclick', `editProduct('${product}')`);
+    }
+
+    // حفظ القائمة اليومية بتنسيق PDF
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text("قائمة المنتجات اليومية", 20, 10);
+        doc.text(`الكمية الكلية: ${document.getElementById('total-quantity').textContent}`, 20, 20);
+        doc.text(`السعر الكلي: ${document.getElementById('total-price').textContent}`, 20, 30);
+
+        const table = document.getElementById("products-table");
+        const rows = table.getElementsByTagName("tr");
+
+        let yPosition = 40;
+        for (let i = 0; i < rows.length; i++) {
+            let rowCells = rows[i].getElementsByTagName("td");
+            let rowData = '';
+            for (let j = 0; j < rowCells.length; j++) {
+                rowData += rowCells[j].textContent + '   ';
+            }
+            doc.text(rowData, 20, yPosition);
+            yPosition += 10;
+        }
+
+        doc.save("قائمة_المبيعات.pdf");
+    }
+</script>
+
+</body>
+</html>
