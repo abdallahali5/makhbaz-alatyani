@@ -32,7 +32,7 @@
             font-size: 20px;
             font-weight: bold;
         }
-        .back-btn, .pdf-btn, .edit-btn, .save-btn {
+        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -41,7 +41,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover {
+        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover {
             background-color: #45a049;
         }
         .log {
@@ -54,18 +54,6 @@
             font-size: 14px;
             max-height: 200px;
             overflow-y: auto;
-        }
-        .add-product-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .add-product-btn:hover {
-            background-color: #0b7dda;
         }
     </style>
 </head>
@@ -135,19 +123,6 @@
         // تحديث الكمية والسعر الكلي
         document.getElementById('total-quantity').textContent = totalQuantity;
         document.getElementById('total-price').textContent = totalPrice;
-
-        // تحديث الكميات في صفحة المبيعات
-        updateSalesPageQuantities();
-    }
-
-    // تحديث الكميات في صفحة المبيعات
-    function updateSalesPageQuantities() {
-        products.forEach((product, index) => {
-            const salesQuantityInput = document.getElementById(`sales-quantity-${index}`);
-            if (salesQuantityInput) {
-                salesQuantityInput.value = product.stock; // تحديث الكمية في صفحة المبيعات
-            }
-        });
     }
 
     // إضافة منتج
@@ -156,4 +131,112 @@
         const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
         const productStock = parseInt(prompt("أدخل كمية المنتج:"));
 
-        if (p
+        if (productName && !isNaN(productPrice) && !isNaN(productStock)) {
+            const product = {
+                name: productName,
+                price: productPrice,
+                stock: productStock
+            };
+
+            products.push(product);
+            renderProducts();
+        } else {
+            alert("يرجى ملء جميع الحقول بشكل صحيح.");
+        }
+    }
+
+    // عرض المنتجات في الجدول
+    function renderProducts() {
+        const tableBody = document.querySelector("#products-table tbody");
+        tableBody.innerHTML = ""; // مسح الجدول الحالي
+
+        products.forEach((product, index) => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td contenteditable="true">${product.name}</td>
+                <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
+                <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
+                <td>${(product.stock * product.price).toFixed(2)}</td>
+                <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button></td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+        updateProductTotal();
+    }
+
+    // تعديل المنتج
+    function editProduct(index) {
+        const row = document.querySelector(`#products-table tbody tr:nth-child(${index + 1})`);
+        const name = row.cells[0];
+        const stock = row.cells[1].querySelector('input');
+        const price = row.cells[2].querySelector('input');
+
+        // تمكين الحقول لتعديل المنتج
+        name.contentEditable = true;
+        stock.disabled = false;
+        price.disabled = false;
+
+        // تغيير الزر "تعديل" إلى "حفظ التعديل"
+        const editBtn = row.querySelector('.edit-btn');
+        editBtn.textContent = "حفظ التعديل";
+        editBtn.setAttribute('onclick', `saveProduct(${index})`);
+    }
+
+    // حفظ التعديل
+    function saveProduct(index) {
+        const row = document.querySelector(`#products-table tbody tr:nth-child(${index + 1})`);
+        const product = products[index];
+
+        product.name = row.cells[0].textContent;
+        product.stock = parseInt(row.cells[1].querySelector('input').value);
+        product.price = parseFloat(row.cells[2].querySelector('input').value);
+
+        row.cells[0].contentEditable = false;
+        row.cells[1].querySelector('input').disabled = true;
+        row.cells[2].querySelector('input').disabled = true;
+
+        const editBtn = row.querySelector('.edit-btn');
+        editBtn.textContent = "تعديل";
+        editBtn.setAttribute('onclick', `editProduct(${index})`);
+
+        renderProducts();
+    }
+
+    // تحديث البيانات بعد التعديل
+    function updateProduct(index, field, value) {
+        products[index][field] = isNaN(value) ? value : parseFloat(value);
+        renderProducts();
+    }
+
+    // الرجوع إلى الصفحة الرئيسية
+    function goBack() {
+        window.location.href = "index.html"; // تأكد من تعديل الرابط حسب هيكل موقعك
+    }
+
+    // حفظ القائمة اليومية بتنسيق PDF
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text("قائمة المنتجات اليومية", 20, 10);
+        doc.text(`الكمية الكلية: ${document.getElementById('total-quantity').textContent}`, 20, 20);
+        doc.text(`السعر الكلي: ${document.getElementById('total-price').textContent}`, 20, 30);
+
+        let yPosition = 40;
+        products.forEach(product => {
+            doc.text(`${product.name} - الكمية: ${product.stock} - السعر: ${product.price} شيكل - الإجمالي: ${(product.stock * product.price).toFixed(2)} شيكل`, 20, yPosition);
+            yPosition += 10;
+        });
+
+        doc.save("قائمة_المبيعات.pdf");
+    }
+
+    // عرض المنتجات عند تحميل الصفحة
+    renderProducts();
+</script>
+
+</body>
+</html>
