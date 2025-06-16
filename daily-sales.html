@@ -1,207 +1,155 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>المبيعات اليومية - مخبز العطياني</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fff8f0;
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h2 {
-      color: #c48a47;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: right;
-    }
-
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 6px;
-      margin: 5px 0;
-    }
-
-    button {
-      background-color: #c48a47;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin-top: 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .back-button {
-      background-color: gray;
-      margin-top: 15px;
-    }
-
-    .delete {
-      background-color: darkred;
-    }
-
-    .total {
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin-top: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة المبيعات اليومية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+        }
+        .log {
+            margin-top: 20px;
+            text-align: left;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
 
-<h2>🧾 المبيعات اليومية</h2>
+<div class="container">
+    <h2>المبيعات اليومية</h2>
+    
+    <!-- جدول المبيعات -->
+    <table id="sales-table">
+        <thead>
+            <tr>
+                <th>المنتج</th>
+                <th>الكمية</th>
+                <th>السعر (شيكل)</th>
+                <th>الإجمالي (شيكل)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>خبز</td>
+                <td><input type="number" id="bread-quantity" value="0" min="0" oninput="calculateTotal()"></td>
+                <td>5</td>
+                <td id="bread-total">0</td>
+            </tr>
+            <tr>
+                <td>كعك</td>
+                <td><input type="number" id="cake-quantity" value="0" min="0" oninput="calculateTotal()"></td>
+                <td>10</td>
+                <td id="cake-total">0</td>
+            </tr>
+            <tr>
+                <td>معجنات</td>
+                <td><input type="number" id="pastry-quantity" value="0" min="0" oninput="calculateTotal()"></td>
+                <td>7</td>
+                <td id="pastry-total">0</td>
+            </tr>
+        </tbody>
+    </table>
 
-<table id="salesTable">
-  <thead>
-    <tr>
-      <th>المنتج</th>
-      <th>السعر (₪)</th>
-      <th>الكمية</th>
-      <th>الإجمالي (₪)</th>
-      <th>📆 التاريخ / الوقت</th>
-      <th>❌</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+    <!-- إجمالي المبيعات -->
+    <div class="total">
+        إجمالي المبيعات: <span id="total-sales">0</span> شيكل
+    </div>
 
-<h3>➕ إضافة منتج جديد</h3>
-<input type="text" id="name" placeholder="اسم المنتج">
-<input type="number" id="price" placeholder="السعر (₪)">
-<input type="number" id="quantity" placeholder="الكمية">
-<br>
-<button onclick="addProduct()">➕ إضافة</button>
+    <!-- زر الرجوع -->
+    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
 
-<div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
+    <!-- سجل العمليات -->
+    <div class="log" id="sales-log">
+        <h3>سجل العمليات:</h3>
+        <ul id="log-list">
+            <!-- يتم عرض العمليات هنا -->
+        </ul>
+    </div>
+</div>
 
-<button onclick="exportPDF()">📄 حفظ كـ PDF</button>
-<button class="back-button" onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-  const tbody = document.querySelector("tbody");
-  const totalEl = document.getElementById("total");
+    // حساب إجمالي المبيعات
+    function calculateTotal() {
+        const breadQuantity = document.getElementById('bread-quantity').value;
+        const cakeQuantity = document.getElementById('cake-quantity').value;
+        const pastryQuantity = document.getElementById('pastry-quantity').value;
 
-  let sales = JSON.parse(localStorage.getItem("sales")) || [];
+        const breadTotal = breadQuantity * 5;
+        const cakeTotal = cakeQuantity * 10;
+        const pastryTotal = pastryQuantity * 7;
 
-  function renderTable() {
-    tbody.innerHTML = "";
-    sales.forEach((item, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.name}</td>
-        <td>${item.price.toFixed(2)}</td>
-        <td><input type="number" value="${item.quantity}" min="0" onchange="updateRow(this, ${index})"></td>
-        <td class="subtotal">${(item.price * item.quantity).toFixed(2)}</td>
-        <td>${item.date || ""} ${item.time || ""}</td>
-        <td><button class="delete" onclick="deleteRow(${index})">🗑️</button></td>
-      `;
-      tbody.appendChild(row);
-    });
-    updateTotal();
-  
+        document.getElementById('bread-total').textContent = breadTotal;
+        document.getElementById('cake-total').textContent = cakeTotal;
+        document.getElementById('pastry-total').textContent = pastryTotal;
 
-  function addProduct() {
-    const name = document.getElementById("name").value.trim();
-    const price = parseFloat(document.getElementById("price").value);
-    const quantity = parseInt(document.getElementById("quantity").value);
+        const totalSales = breadTotal + cakeTotal + pastryTotal;
+        document.getElementById('total-sales').textContent = totalSales;
 
-    if (!name || isNaN(price) || isNaN(quantity) || quantity <= 0) {
-      alert("الرجاء إدخال جميع الحقول بشكل صحيح.");
-      return;
+        // تسجيل العملية في السجل
+        logSale(breadQuantity, cakeQuantity, pastryQuantity, totalSales);
     }
 
-    sales.push({ name, price, quantity });
-    saveSales();
-    clearInputs();
-    renderTable();
-  }
+    // تسجيل العملية في السجل مع التاريخ والوقت
+    function logSale(breadQuantity, cakeQuantity, pastryQuantity, totalSales) {
+        const currentDate = new Date();
+        const dateString = currentDate.toLocaleDateString("ar-SA");
+        const timeString = currentDate.toLocaleTimeString("ar-SA");
 
-  function updateRow(input, index) {
-    const qty = parseInt(input.value);
-    if (qty >= 0) {
-      sales[index].quantity = qty;
-      saveSales();
-      renderTable();
+        const logItem = document.createElement("li");
+        logItem.textContent = `التاريخ: ${dateString} - الوقت: ${timeString} - الخبز: ${breadQuantity} - الكعك: ${cakeQuantity} - معجنات: ${pastryQuantity} - الإجمالي: ${totalSales} شيكل`;
+
+        const logList = document.getElementById('log-list');
+        logList.insertBefore(logItem, logList.firstChild);
     }
-  }
 
-  function deleteRow(index) {
-    if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
-      sales.splice(index, 1);
-      saveSales();
-      renderTable();
+    // الرجوع إلى الصفحة الرئيسية
+    function goBack() {
+        window.location.href = "index.html"; // تأكد من تعديل الرابط حسب هيكل موقعك
     }
-  }
-
-  function updateTotal() {
-    let total = 0;
-    sales.forEach(item => {
-      total += item.price * item.quantity;
-    });
-    totalEl.textContent = total.toFixed(2);
-  }
-
-  function clearInputs() {
-    document.getElementById("name").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("quantity").value = "";
-  }
-
-  function saveSales() {
-    localStorage.setItem("sales", JSON.stringify(sales));
-  }
-
-  function goHome() {
-    window.location.href = "index.html";
-  }
-
-  async function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.setFont("Helvetica", "bold");
-    doc.text("المبيعات اليومية - مخبز العطياني", 105, 15, { align: "center" });
-
-    let y = 30;
-    doc.setFont("Helvetica", "normal");
-
-    doc.text("المنتج", 10, y);
-    doc.text("السعر", 60, y);
-    doc.text("الكمية", 100, y);
-    doc.text("الإجمالي", 140, y);
-    y += 10;
-
-    sales.forEach(item => {
-      doc.text(item.name, 10, y);
-      doc.text(item.price.toFixed(2) + " ₪", 60, y);
-      doc.text(item.quantity.toString(), 100, y);
-      doc.text((item.price * item.quantity).toFixed(2) + " ₪", 140, y);
-      y += 10;
-    });
-
-    y += 10;
-    doc.setFont("Helvetica", "bold");
-    const total = sales.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    doc.text("المجموع الكلي: " + total.toFixed(2) + " ₪", 10, y);
-
-    doc.save("تقرير-مبيعات-اليومي.pdf");
-  }
-
-  renderTable();
 </script>
 
 </body>
