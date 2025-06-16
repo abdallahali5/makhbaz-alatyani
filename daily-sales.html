@@ -142,6 +142,40 @@
     window.location.href = "index.html";
   }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFont("Helvetica", "bold");
+    doc.text("المبيعات اليومية - مخبز العطياني", 105, 15, { align: "center" });
+
+    let y = 30;
+    doc.setFont("Helvetica", "normal");
+
+    doc.text("المنتج", 10, y);
+    doc.text("السعر", 60, y);
+    doc.text("الكمية", 100, y);
+    doc.text("الإجمالي", 140, y);
+    y += 10;
+
+    sales.forEach(item => {
+      doc.text(item.name, 10, y);
+      doc.text(item.price.toFixed(2) + " ₪", 60, y);
+      doc.text(item.quantity.toString(), 100, y);
+      doc.text((item.price * item.quantity).toFixed(2) + " ₪", 140, y);
+      y += 10;
+    });
+
+    y += 10;
+    doc.setFont("Helvetica", "bold");
+    const total = sales.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    doc.text("المجموع الكلي: " + total.toFixed(2) + " ₪", 10, y);
+
+    doc.save("تقرير-مبيعات-اليومي.pdf");
+  }
+</script>
 
 </body>
 </html>
