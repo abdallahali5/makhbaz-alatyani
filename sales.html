@@ -55,6 +55,18 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .add-product-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-product-btn:hover {
+            background-color: #0b7dda;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +114,9 @@
     <!-- زر الرجوع -->
     <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
 
+    <!-- زر إضافة منتج -->
+    <button class="add-product-btn" onclick="addProduct()">إضافة منتج</button>
+
     <!-- سجل العمليات -->
     <div class="log" id="sales-log">
         <h3>سجل العمليات:</h3>
@@ -144,6 +159,33 @@
 
         const logList = document.getElementById('log-list');
         logList.insertBefore(logItem, logList.firstChild);
+    }
+
+    // إضافة منتج جديد إلى الجدول
+    function addProduct() {
+        const productName = prompt("أدخل اسم المنتج:");
+        const productPrice = prompt("أدخل سعر المنتج (شيكل):");
+        const productQuantity = prompt("أدخل كمية المنتج:");
+
+        if (productName && productPrice && productQuantity) {
+            const table = document.getElementById('sales-table').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            const cell3 = newRow.insertCell(2);
+            const cell4 = newRow.insertCell(3);
+
+            cell1.innerHTML = productName;
+            cell2.innerHTML = `<input type="number" value="${productQuantity}" min="0" oninput="calculateTotal()">`;
+            cell3.innerHTML = productPrice;
+            cell4.innerHTML = productPrice * productQuantity;
+
+            // تحديث الحساب الإجمالي بعد إضافة المنتج
+            calculateTotal();
+        } else {
+            alert("يرجى ملء جميع الحقول.");
+        }
     }
 
     // الرجوع إلى الصفحة الرئيسية
