@@ -44,15 +44,19 @@
       cursor: pointer;
     }
 
+    .back-button {
+      background-color: gray;
+      margin-top: 15px;
+    }
+
+    .delete {
+      background-color: darkred;
+    }
+
     .total {
       font-weight: bold;
       font-size: 1.2rem;
       margin-top: 1rem;
-    }
-
-    .back-button {
-      background-color: gray;
-      margin-top: 15px;
     }
   </style>
 </head>
@@ -67,6 +71,7 @@
       <th>السعر (₪)</th>
       <th>الكمية</th>
       <th>الإجمالي (₪)</th>
+      <th>❌</th>
     </tr>
   </thead>
   <tbody></tbody>
@@ -81,102 +86,24 @@
 
 <div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
 
+<button onclick="exportPDF()">📄 حفظ كـ PDF</button>
 <button class="back-button" onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
+
+<!-- jsPDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
   const tbody = document.querySelector("tbody");
   const totalEl = document.getElementById("total");
+  let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-  function addProduct() {
-    const name = document.getElementById("name").value.trim();
-    const price = parseFloat(document.getElementById("price").value);
-    const quantity = parseInt(document.getElementById("quantity").value);
-
-    if (!name || isNaN(price) || isNaN(quantity) || quantity <= 0) {
-      alert("الرجاء إدخال جميع الحقول بشكل صحيح.");
-      return;
-    }
-
-    const subtotal = price * quantity;
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${name}</td>
-      <td>${price.toFixed(2)}</td>
-      <td>
-        <input type="number" value="${quantity}" min="0" onchange="updateRow(this)">
-      </td>
-      <td class="subtotal">${subtotal.toFixed(2)}</td>
-    `;
-    tbody.appendChild(row);
-
-    updateTotal();
-    clearInputs();
-  }
-
-  function updateRow(input) {
-    const row = input.parentElement.parentElement;
-    const price = parseFloat(row.cells[1].textContent);
-    const quantity = parseInt(input.value);
-    const subtotal = price * quantity;
-
-    row.querySelector(".subtotal").textContent = subtotal.toFixed(2);
-    updateTotal();
-  }
-
-  function updateTotal() {
-    let total = 0;
-    document.querySelectorAll(".subtotal").forEach(cell => {
-      total += parseFloat(cell.textContent);
-    });
-    totalEl.textContent = total.toFixed(2);
-  }
-
-  function clearInputs() {
-    document.getElementById("name").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("quantity").value = "";
-  }
-
-  function goHome() {
-    window.location.href = "index.html";
-  }
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-  async function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.setFont("Helvetica", "bold");
-    doc.text("المبيعات اليومية - مخبز العطياني", 105, 15, { align: "center" });
-
-    let y = 30;
-    doc.setFont("Helvetica", "normal");
-
-    doc.text("المنتج", 10, y);
-    doc.text("السعر", 60, y);
-    doc.text("الكمية", 100, y);
-    doc.text("الإجمالي", 140, y);
-    y += 10;
-
-    sales.forEach(item => {
-      doc.text(item.name, 10, y);
-      doc.text(item.price.toFixed(2) + " ₪", 60, y);
-      doc.text(item.quantity.toString(), 100, y);
-      doc.text((item.price * item.quantity).toFixed(2) + " ₪", 140, y);
-      y += 10;
-    });
-
-    y += 10;
-    doc.setFont("Helvetica", "bold");
-    const total = sales.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    doc.text("المجموع الكلي: " + total.toFixed(2) + " ₪", 10, y);
-
-    doc.save("تقرير-مبيعات-اليومي.pdf");
-  }
-</script>
-<button onclick="exportPDF()">📄 حفظ كـ PDF</button>
-
-</body>
-</html>
+  function renderTable() {
+    tbody.innerHTML = "";
+    sales.forEach((item, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.price.toFixed(2)}</td>
+        <td><input type="number" value="${item.quantity}" min="0" onchange="updateRow(this, ${index})"></td>
+        <td class="subtotal">${(item.price * item.quantity).toFixed(2)}</td>
+        <td
