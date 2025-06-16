@@ -88,94 +88,15 @@
             <tr>
                 <td>خبز</td>
                 <td><input type="number" id="bread-stock" value="50" min="0" oninput="updateProductTotal()"></td>
-                <td>5</td>
+                <td><input type="number" id="bread-price" value="5" min="0" oninput="updateProductTotal()"></td>
                 <td id="bread-total-price">250</td>
             </tr>
             <tr>
                 <td>كعك</td>
                 <td><input type="number" id="cake-stock" value="30" min="0" oninput="updateProductTotal()"></td>
-                <td>10</td>
+                <td><input type="number" id="cake-price" value="10" min="0" oninput="updateProductTotal()"></td>
                 <td id="cake-total-price">300</td>
             </tr>
             <tr>
                 <td>معجنات</td>
-                <td><input type="number" id="pastry-stock" value="20" min="0" oninput="updateProductTotal()"></td>
-                <td>7</td>
-                <td id="pastry-total-price">140</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- إجمالي الكمية والسعر الكلي -->
-    <div class="total">
-        الكمية الكلية: <span id="total-quantity">100</span> وحدة
-        <br>
-        السعر الكلي: <span id="total-price">690</span> شيكل
-    </div>
-
-    <!-- زر الرجوع -->
-    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
-
-    <!-- سجل العمليات -->
-    <div class="log" id="sales-log">
-        <h3>سجل العمليات:</h3>
-        <ul id="log-list">
-            <!-- يتم عرض العمليات هنا -->
-        </ul>
-    </div>
-</div>
-
-<script>
-    // تحديث إجمالي السعر والكمية الكلية
-    function updateProductTotal() {
-        const breadStock = document.getElementById('bread-stock').value;
-        const cakeStock = document.getElementById('cake-stock').value;
-        const pastryStock = document.getElementById('pastry-stock').value;
-
-        const breadPrice = 5;
-        const cakePrice = 10;
-        const pastryPrice = 7;
-
-        // حساب إجمالي السعر لكل منتج
-        const breadTotalPrice = breadStock * breadPrice;
-        const cakeTotalPrice = cakeStock * cakePrice;
-        const pastryTotalPrice = pastryStock * pastryPrice;
-
-        // تحديث إجمالي السعر لكل منتج
-        document.getElementById('bread-total-price').textContent = breadTotalPrice;
-        document.getElementById('cake-total-price').textContent = cakeTotalPrice;
-        document.getElementById('pastry-total-price').textContent = pastryTotalPrice;
-
-        // حساب الكمية الكلية والسعر الكلي
-        const totalQuantity = parseInt(breadStock) + parseInt(cakeStock) + parseInt(pastryStock);
-        const totalPrice = breadTotalPrice + cakeTotalPrice + pastryTotalPrice;
-
-        // تحديث الكمية والسعر الكلي
-        document.getElementById('total-quantity').textContent = totalQuantity;
-        document.getElementById('total-price').textContent = totalPrice;
-    }
-
-    // الرجوع إلى الصفحة الرئيسية
-    function goBack() {
-        window.location.href = "index.html"; // تأكد من تعديل الرابط حسب هيكل موقعك
-    }
-
-    // تسجيل العملية في السجل مع التاريخ والوقت
-    function logSale() {
-        const currentDate = new Date();
-        const dateString = currentDate.toLocaleDateString("ar-SA");
-        const timeString = currentDate.toLocaleTimeString("ar-SA");
-
-        const logItem = document.createElement("li");
-        logItem.textContent = `التاريخ: ${dateString} - الوقت: ${timeString} - الكمية: ${document.getElementById('total-quantity').textContent} وحدة - السعر الكلي: ${document.getElementById('total-price').textContent} شيكل`;
-
-        const logList = document.getElementById('log-list');
-        logList.insertBefore(logItem, logList.firstChild);
-    }
-
-    // تنفيذ العملية عند نهاية اليوم (مثال على العملية)
-    setTimeout(logSale, 3000); // تسجيل العملية بعد 3 ثواني فقط للتوضيح
-</script>
-
-</body>
-</html>
+                <td><input type="number" id="pastry-stock" value="20" min="0" oni
