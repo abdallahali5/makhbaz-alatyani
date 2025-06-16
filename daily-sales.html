@@ -99,11 +99,14 @@
 
     const subtotal = price * quantity;
     const row = document.createElement("tr");
+
     row.innerHTML = `
       <td>${name}</td>
       <td>${price.toFixed(2)}</td>
-      <td>${quantity}</td>
-      <td>${subtotal.toFixed(2)}</td>
+      <td>
+        <input type="number" value="${quantity}" min="0" onchange="updateRow(this)">
+      </td>
+      <td class="subtotal">${subtotal.toFixed(2)}</td>
     `;
     tbody.appendChild(row);
 
@@ -111,11 +114,20 @@
     clearInputs();
   }
 
+  function updateRow(input) {
+    const row = input.parentElement.parentElement;
+    const price = parseFloat(row.cells[1].textContent);
+    const quantity = parseInt(input.value);
+    const subtotal = price * quantity;
+
+    row.querySelector(".subtotal").textContent = subtotal.toFixed(2);
+    updateTotal();
+  }
+
   function updateTotal() {
     let total = 0;
-    document.querySelectorAll("tbody tr").forEach(row => {
-      const subtotal = parseFloat(row.cells[3].textContent);
-      total += subtotal;
+    document.querySelectorAll(".subtotal").forEach(cell => {
+      total += parseFloat(cell.textContent);
     });
     totalEl.textContent = total.toFixed(2);
   }
