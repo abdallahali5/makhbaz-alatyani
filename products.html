@@ -1,127 +1,180 @@
 <!DOCTYPE html>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  body {
-    font-family: 'Tajawal', Arial, sans-serif;
-  }
-</style>
-
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>إدارة المنتجات - مخبز العطياني</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fff8f0;
-      padding: 2rem;
-    }
-    input {
-      padding: 0.5rem;
-      margin: 0.3rem;
-      width: 200px;
-    }
-    button {
-      padding: 0.4rem 1rem;
-      background-color: #c48a47;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .product {
-      background: white;
-      margin-bottom: 0.8rem;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة المنتجات والمبيعات اليومية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+        }
+        .log {
+            margin-top: 20px;
+            text-align: left;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .add-product-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-product-btn:hover {
+            background-color: #0b7dda;
+        }
+    </style>
 </head>
 <body>
-<script>
-  const user = localStorage.getItem("loggedInUser");
-  if (!user) {
-    window.location.href = "login.html"; // إعادة التوجيه إذا لم يتم تسجيل الدخول
-  }
-</script>
-<button onclick="logout()">🚪 تسجيل الخروج</button>
+
+<div class="container">
+    <h2>صفحة المنتجات والمبيعات اليومية</h2>
+    
+    <!-- جدول المنتجات -->
+    <table id="products-table">
+        <thead>
+            <tr>
+                <th>المنتج</th>
+                <th>الكمية المتوفرة</th>
+                <th>السعر (شيكل)</th>
+                <th>إجمالي السعر (شيكل)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>خبز</td>
+                <td><input type="number" id="bread-stock" value="50" min="0" oninput="updateProductTotal()"></td>
+                <td>5</td>
+                <td id="bread-total-price">250</td>
+            </tr>
+            <tr>
+                <td>كعك</td>
+                <td><input type="number" id="cake-stock" value="30" min="0" oninput="updateProductTotal()"></td>
+                <td>10</td>
+                <td id="cake-total-price">300</td>
+            </tr>
+            <tr>
+                <td>معجنات</td>
+                <td><input type="number" id="pastry-stock" value="20" min="0" oninput="updateProductTotal()"></td>
+                <td>7</td>
+                <td id="pastry-total-price">140</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- إجمالي الكمية والسعر الكلي -->
+    <div class="total">
+        الكمية الكلية: <span id="total-quantity">100</span> وحدة
+        <br>
+        السعر الكلي: <span id="total-price">690</span> شيكل
+    </div>
+
+    <!-- زر الرجوع -->
+    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
+
+    <!-- سجل العمليات -->
+    <div class="log" id="sales-log">
+        <h3>سجل العمليات:</h3>
+        <ul id="log-list">
+            <!-- يتم عرض العمليات هنا -->
+        </ul>
+    </div>
+</div>
 
 <script>
-  function logout() {
-    localStorage.removeItem("loggedInUser");
-    window.location.href = "login.html";
-  }
-</script>
+    // تحديث إجمالي السعر والكمية الكلية
+    function updateProductTotal() {
+        const breadStock = document.getElementById('bread-stock').value;
+        const cakeStock = document.getElementById('cake-stock').value;
+        const pastryStock = document.getElementById('pastry-stock').value;
 
-  <h2>إدارة المنتجات</h2>
+        const breadPrice = 5;
+        const cakePrice = 10;
+        const pastryPrice = 7;
 
-  <div>
-    <input type="text" id="newName" placeholder="اسم المنتج">
-    <input type="number" id="newPrice" placeholder="السعر">
-    <button onclick="addProduct()">➕ إضافة</button>
-  </div>
+        // حساب إجمالي السعر لكل منتج
+        const breadTotalPrice = breadStock * breadPrice;
+        const cakeTotalPrice = cakeStock * cakePrice;
+        const pastryTotalPrice = pastryStock * pastryPrice;
 
-  <hr>
+        // تحديث إجمالي السعر لكل منتج
+        document.getElementById('bread-total-price').textContent = breadTotalPrice;
+        document.getElementById('cake-total-price').textContent = cakeTotalPrice;
+        document.getElementById('pastry-total-price').textContent = pastryTotalPrice;
 
-  <div id="productList"></div>
+        // حساب الكمية الكلية والسعر الكلي
+        const totalQuantity = parseInt(breadStock) + parseInt(cakeStock) + parseInt(pastryStock);
+        const totalPrice = breadTotalPrice + cakeTotalPrice + pastryTotalPrice;
 
-  <script>
-    function loadProducts() {
-      const products = JSON.parse(localStorage.getItem("products") || "[]");
-      const list = document.getElementById("productList");
-      list.innerHTML = "";
-
-      products.forEach((p, index) => {
-        const div = document.createElement("div");
-        div.className = "product";
-        div.innerHTML = `
-          <strong>${p.name}</strong> - ${p.price.toFixed(3)} دينار
-          <button onclick="deleteProduct(${index})">❌ حذف</button>
-        `;
-        list.appendChild(div);
-      });
+        // تحديث الكمية والسعر الكلي
+        document.getElementById('total-quantity').textContent = totalQuantity;
+        document.getElementById('total-price').textContent = totalPrice;
     }
 
-    function addProduct() {
-      const name = document.getElementById("newName").value.trim();
-      const price = parseFloat(document.getElementById("newPrice").value);
-      if (!name || isNaN(price)) return alert("أدخل اسم وسعر صحيح");
-
-      const products = JSON.parse(localStorage.getItem("products") || "[]");
-      products.push({ name, price });
-      localStorage.setItem("products", JSON.stringify(products));
-      loadProducts();
-      document.getElementById("newName").value = "";
-      document.getElementById("newPrice").value = "";
+    // الرجوع إلى الصفحة الرئيسية
+    function goBack() {
+        window.location.href = "index.html"; // تأكد من تعديل الرابط حسب هيكل موقعك
     }
 
-    function deleteProduct(index) {
-      const products = JSON.parse(localStorage.getItem("products") || "[]");
-      products.splice(index, 1);
-      localStorage.setItem("products", JSON.stringify(products));
-      loadProducts();
+    // تسجيل العملية في السجل مع التاريخ والوقت
+    function logSale() {
+        const currentDate = new Date();
+        const dateString = currentDate.toLocaleDateString("ar-SA");
+        const timeString = currentDate.toLocaleTimeString("ar-SA");
+
+        const logItem = document.createElement("li");
+        logItem.textContent = `التاريخ: ${dateString} - الوقت: ${timeString} - الكمية: ${document.getElementById('total-quantity').textContent} وحدة - السعر الكلي: ${document.getElementById('total-price').textContent} شيكل`;
+
+        const logList = document.getElementById('log-list');
+        logList.insertBefore(logItem, logList.firstChild);
     }
 
-    window.onload = loadProducts;
-  </script>
-<button onclick="goHome()" style="margin-top: 1rem; background-color: #888; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px;">
-  ⬅️ الرجوع إلى الرئيسية
-</button>
-
-<script>
-  function goHome() {
-    window.location.href = "index.html";
-  }
-</script>
-<button onclick="goHome()" style="margin-top: 1rem; background-color: #888; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px;">
-  ⬅️ الرجوع إلى الرئيسية
-</button>
-
-<script>
-  function goHome() {
-    window.location.href = "index.html";
-  }
+    // تنفيذ العملية عند نهاية اليوم (مثال على العملية)
+    setTimeout(logSale, 3000); // تسجيل العملية بعد 3 ثواني فقط للتوضيح
 </script>
 
 </body>
