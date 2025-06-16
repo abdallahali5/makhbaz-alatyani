@@ -31,6 +31,7 @@
     input[type="text"], input[type="number"] {
       width: 100%;
       padding: 6px;
+      margin: 5px 0;
     }
 
     button {
@@ -41,6 +42,15 @@
       margin-top: 10px;
       border-radius: 6px;
       cursor: pointer;
+    }
+
+    .back-button {
+      background-color: gray;
+      margin-top: 15px;
+    }
+
+    .delete {
+      background-color: darkred;
     }
 
     .total {
@@ -61,12 +71,12 @@
       <th>السعر (₪)</th>
       <th>الكمية</th>
       <th>الإجمالي (₪)</th>
+      <th>📆 التاريخ / الوقت</th>
+      <th>❌</th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
-
-<br>
 
 <h3>➕ إضافة منتج جديد</h3>
 <input type="text" id="name" placeholder="اسم المنتج">
@@ -77,33 +87,32 @@
 
 <div class="total">💰 المجموع الكلي: <span id="total">0</span> ₪</div>
 
+<button onclick="exportPDF()">📄 حفظ كـ PDF</button>
+<button class="back-button" onclick="goHome()">⬅️ الرجوع إلى القائمة الرئيسية</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   const tbody = document.querySelector("tbody");
   const totalEl = document.getElementById("total");
 
-  function addProduct() {
-    const name = document.getElementById("name").value.trim();
-    const price = parseFloat(document.getElementById("price").value);
-    const quantity = parseInt(document.getElementById("quantity").value);
+  let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-    if (!name || isNaN(price) || isNaN(quantity) || quantity <= 0) {
-      alert("الرجاء إدخال جميع الحقول بشكل صحيح.");
-      return;
-    }
-
-    const subtotal = price * quantity;
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${name}</td>
-      <td>${price.toFixed(2)}</td>
-      <td>${quantity}</td>
-      <td>${subtotal.toFixed(2)}</td>
-    `;
-    tbody.appendChild(row);
-
+  function renderTable() {
+    tbody.innerHTML = "";
+    sales.forEach((item, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.price.toFixed(2)}</td>
+        <td><input type="number" value="${item.quantity}" min="0" onchange="updateRow(this, ${index})"></td>
+        <td class="subtotal">${(item.price * item.quantity).toFixed(2)}</td>
+        <td>${item.date || ""} ${item.time || ""}</td>
+        <td><button class="delete" onclick="deleteRow(${index})">🗑️</button></td>
+      `;
+      tbody.appendChild(row);
+    });
     updateTotal();
-    clearInputs();
-  }
+   }
 
   function updateTotal() {
     let total = 0;
