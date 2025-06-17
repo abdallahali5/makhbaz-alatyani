@@ -18,6 +18,43 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn, .delete-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover {
+            background-color: #45a049;
+        }
+        .log {
+            margin-top: 20px;
+            text-align: left;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -25,42 +62,90 @@
 <div class="container">
     <h2>صفحة المبيعات اليومية</h2>
 
-    <!-- إضافة منتجات وحساب البيانات الأخرى هنا -->
-    
+    <!-- زر إضافة منتج -->
+    <button class="add-product-btn" onclick="addProduct()">إضافة منتج</button>
+
+    <!-- جدول المبيعات -->
+    <table id="sales-table">
+        <thead>
+            <tr>
+                <th>المنتج</th>
+                <th>الكمية الموجودة</th>
+                <th>المبيعات</th>
+                <th>السعر (شيكل)</th>
+                <th>إجمالي السعر (شيكل)</th>
+                <th>العمليات</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- المنتجات ستضاف هنا ديناميكيًا -->
+        </tbody>
+    </table>
+
+    <!-- مربعي استلام الصندوق و تسليم الصندوق -->
+    <div>
+        <label for="box-receipt">استلام الصندوق (شيكل):</label>
+        <input type="number" id="box-receipt" value="0" onchange="calculateReceipt()" />
+
+        <label for="box-distribution">تسليم الصندوق (شيكل):</label>
+        <input type="number" id="box-distribution" value="0" onchange="calculateReceipt()" />
+
+        <label for="expenses">المصروفات (شيكل):</label>
+        <input type="number" id="expenses" value="0" onchange="calculateReceipt()" />
+    </div>
+
+    <!-- إجمالي الكمية والسعر الكلي -->
+    <div class="total">
+        الكمية الكلية الموجودة: <span id="total-quantity">0</span> وحدة
+        <br>
+        إجمالي المبيعات: <span id="total-sales">0</span> شيكل
+        <br>
+        الكمية الموجودة الإجمالية: <span id="total-stock-value">0</span> شيكل
+        <br>
+        الكمية المباعة الإجمالية: <span id="total-sales-value">0</span> شيكل
+        <br>
+        المبلغ المتبقي في الصندوق: <span id="remaining-box">0</span> شيكل
+        <br>
+        صافي الصندوق: <span id="net-box">0</span> شيكل
+    </div>
+
+    <!-- زر الرجوع -->
+    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
+
+    <!-- زر حفظ PDF -->
+    <button class="pdf-btn" onclick="downloadPDF()">حفظ القائمه اليومية PDF</button>
+
+    <!-- سجل العمليات -->
+    <div class="log" id="sales-log">
+        <h3>سجل العمليات:</h3>
+        <ul id="log-list">
+            <!-- يتم عرض العمليات هنا -->
+        </ul>
+    </div>
 </div>
 
+<!-- تحميل مكتبة Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
 
 <script>
-// Firebase Configuration
+// إعداد Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyD-yqbYgLmiqAVEGP5BAGbPCTB-zbohX6o",  // your API key
-  authDomain: "magbaz-8027d.firebaseapp.com",  // your project auth domain
-  databaseURL: "https://magbaz-8027d-default-rtdb.firebaseio.com/",  // the Firebase Realtime Database URL
+  apiKey: "AIzaSyD-yqbYgLmiqAVEGP5BAGbPCTB-zbohX6o",  // مفتاح API الخاص بك
+  authDomain: "magbaz-8027d.firebaseapp.com",  // النطاق الخاص بمشروع Firebase
+  databaseURL: "https://magbaz-8027d-default-rtdb.firebaseio.com/",  // رابط قاعدة البيانات الخاصة بك
   projectId: "magbaz-8027d",
-  storageBucket: "magbaz-8027d.appspot.com",
-  messagingSenderId: "727341351652",
-  appId: "1:727341351652:web:88e0dc1dae4556c5a122f1",
-  measurementId: "G-KZEHDKRNE6"
+  storageBucket: "magbaz-8027d.appspot.com",  // المساحة التخزينية الخاصة بك
+  messagingSenderId: "727341351652",  // معرّف مرسل الرسائل
+  appId: "1:727341351652:web:88e0dc1dae4556c5a122f1",  // معرف التطبيق
+  measurementId: "G-KZEHDKRNE6"  // معرف القياس (اختياري)
 };
 
-// Initialize Firebase
+// تهيئة Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database(app);
 
-// Save data to Firebase
-function saveDataToFirebase() {
-  const ref = db.ref("salesData");
-  ref.set({
-    products: products,  // Array of products
-    receipt: parseFloat(document.getElementById('box-receipt').value),
-    distribution: parseFloat(document.getElementById('box-distribution').value),
-    expenses: parseFloat(document.getElementById('expenses').value)
-  });
-}
-
-// Load data from Firebase
+// تحميل البيانات من Firebase
 function loadDataFromFirebase() {
   const ref = db.ref("salesData");
   ref.once("value", function(snapshot) {
@@ -76,10 +161,148 @@ function loadDataFromFirebase() {
   });
 }
 
-// Initialize when the page loads
+// حفظ البيانات إلى Firebase
+function saveDataToFirebase() {
+  const ref = db.ref("salesData");
+  ref.set({
+    products: products,
+    receipt: parseFloat(document.getElementById('box-receipt').value),
+    distribution: parseFloat(document.getElementById('box-distribution').value),
+    expenses: parseFloat(document.getElementById('expenses').value)
+  });
+}
+
+// تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
+function updateProductTotal() {
+  let totalQuantity = 0;
+  let totalSales = 0;
+  let totalStockValue = 0;
+  let totalSalesValue = 0;
+
+  products.forEach(product => {
+    totalQuantity += product.stock;
+    totalSales += product.sales * product.price;
+    totalStockValue += product.stock * product.price;
+    totalSalesValue += product.sales * product.price;
+  });
+
+  // تحديث الكمية والسعر الكلي
+  document.getElementById('total-quantity').textContent = totalQuantity;
+  document.getElementById('total-sales').textContent = totalSales.toFixed(2);
+  document.getElementById('total-stock-value').textContent = totalStockValue.toFixed(2);
+  document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
+}
+
+// حساب استلام وتسليم الصندوق والمصروفات
+function calculateReceipt() {
+  const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
+  const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
+  const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+
+  // حساب المبلغ المتبقي في الصندوق
+  const remainingBox = receipt + distribution;
+  document.getElementById('remaining-box').textContent = remainingBox.toFixed(2);
+
+  // حساب صافي الصندوق
+  const netBox = remainingBox - expenses;
+  document.getElementById('net-box').textContent = netBox.toFixed(2);
+}
+
+// عند تحميل الصفحة، استرجاع البيانات من Firebase
 window.onload = function() {
-  loadDataFromFirebase();
+  loadDataFromFirebase();  // تحميل البيانات من Firebase
 };
+
+// ربط الوظائف التي كانت تستخدم LocalStorage مع Firebase
+function saveProduct() {
+  // حفظ المنتج إلى Firebase
+  saveDataToFirebase();
+}
+
+// العرض التقديمي للمنتجات
+function renderProducts() {
+  const tableBody = document.querySelector("#sales-table tbody");
+  tableBody.innerHTML = ""; // مسح الجدول الحالي
+
+  products.forEach((product, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td contenteditable="true">${product.name}</td>
+      <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
+      <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
+      <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
+      <td>${(product.sales * product.price).toFixed(2)}</td>
+      <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
+          <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  saveDataToFirebase();
+}
+
+// إضافة منتج
+function addProduct() {
+  const productName = prompt("أدخل اسم المنتج:");
+  const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
+  const productStock = parseInt(prompt("أدخل كمية المنتج:"));
+
+  if (productName && !isNaN(productPrice) && !isNaN(productStock)) {
+    const product = {
+      name: productName,
+      price: productPrice,
+      stock: productStock,
+      sales: 0
+    };
+
+    products.push(product);
+    saveProduct();  // حفظ البيانات في Firebase بعد إضافة المنتج
+    renderProducts();
+  } else {
+    alert("يرجى ملء جميع الحقول بشكل صحيح.");
+  }
+}
+
+// تعديل منتج
+function editProduct(index) {
+  const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
+  const name = row.cells[0];
+  const stock = row.cells[1].querySelector('input');
+  const sales = row.cells[2].querySelector('input');
+  const price = row.cells[3].querySelector('input');
+
+  name.contentEditable = true;
+  stock.disabled = false;
+  sales.disabled = false;
+  price.disabled = false;
+
+  const editBtn = row.querySelector('.edit-btn');
+  editBtn.textContent = "حفظ التعديل";
+  editBtn.setAttribute('onclick', `saveProduct(${index})`);
+}
+
+// حفظ التعديل
+function saveProduct(index) {
+  const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
+  const product = products[index];
+
+  product.name = row.cells[0].textContent;
+  product.stock = parseInt(row.cells[1].querySelector('input').value);
+  product.sales = parseInt(row.cells[2].querySelector('input').value);
+  product.price = parseFloat(row.cells[3].querySelector('input').value);
+
+  row.cells[0].contentEditable = false;
+  row.cells[1].querySelector('input').disabled = true;
+  row.cells[2].querySelector('input').disabled = true;
+  row.cells[3].querySelector('input').disabled = true;
+
+  const editBtn = row.querySelector('.edit-btn');
+  editBtn.textContent = "تعديل";
+  editBtn.setAttribute('onclick', `editProduct(${index})`);
+
+  saveDataToFirebase();  // حفظ التغييرات في Firebase بعد التعديل
+  renderProducts();
+}
 </script>
 
 </body>
