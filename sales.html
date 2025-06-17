@@ -160,40 +160,4 @@
             row.innerHTML = `
                 <td contenteditable="true">${product.name}</td>
                 <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
-                <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
-                <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
-                <td>${(product.sales * product.price).toFixed(2)}</td>
-                <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
-                    <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-        updateProductTotal();
-    }
-
-    // تعديل المنتج
-    function editProduct(index) {
-        const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
-        const name = row.cells[0];
-        const stock = row.cells[1].querySelector('input');
-        const sales = row.cells[2].querySelector('input');
-        const price = row.cells[3].querySelector('input');
-
-        // تمكين الحقول لتعديل المنتج
-        name.contentEditable = true;
-        stock.disabled = false;
-        sales.disabled = false;
-        price.disabled = false;
-
-        // تغيير الزر "تعديل" إلى "حفظ التعديل"
-        const editBtn = row.querySelector('.edit-btn');
-        editBtn.textContent = "حفظ التعديل";
-        editBtn.setAttribute('onclick', `saveProduct(${index})`);
-    }
-
-    // حفظ التعديل
-    function saveProduct(index) {
-        const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
-        const product = products
+                <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', thi
