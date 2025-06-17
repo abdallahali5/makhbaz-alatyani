@@ -127,7 +127,6 @@
 <script>
 // استرجاع البيانات من LocalStorage عند تحميل الصفحة
 let products = JSON.parse(localStorage.getItem("products")) || [];
-let expensesData = JSON.parse(localStorage.getItem("expenses")) || [];
 
 // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
 function updateProductTotal() {
@@ -169,52 +168,6 @@ function calculateReceipt() {
 // حفظ البيانات في LocalStorage
 function saveDataToLocalStorage() {
   localStorage.setItem("products", JSON.stringify(products));
-  localStorage.setItem("expenses", JSON.stringify(expensesData));
-}
-
-// عرض المصروفات في الجدول
-function renderExpenses() {
-  const tableBody = document.querySelector("#expenses-table tbody");
-  tableBody.innerHTML = ""; // مسح الجدول الحالي
-
-  expensesData.forEach((expense, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${expense.type}</td>
-      <td>${expense.price}</td>
-      <td>${expense.notes}</td>
-      <td><button class="delete-btn" onclick="deleteExpense(${index})">حذف</button></td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-// إضافة مصروف
-function addExpense() {
-  const expenseType = prompt("أدخل نوع المصروف:");
-  const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
-  const expenseNotes = prompt("أدخل ملاحظات المصروف:");
-
-  if (expenseType && !isNaN(expensePrice)) {
-    const expense = {
-      type: expenseType,
-      price: expensePrice,
-      notes: expenseNotes
-    };
-
-    expensesData.push(expense);
-    saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد إضافة المصروف
-    renderExpenses();  // عرض المصروفات في الجدول
-  } else {
-    alert("يرجى ملء جميع الحقول بشكل صحيح.");
-  }
-}
-
-// حذف المصروف
-function deleteExpense(index) {
-  expensesData.splice(index, 1);
-  saveDataToLocalStorage();  // حفظ البيانات بعد حذف المصروف
-  renderExpenses();  // تحديث عرض المصروفات
 }
 
 // عرض المنتجات في الجدول
@@ -236,7 +189,8 @@ function renderProducts() {
     tableBody.appendChild(row);
   });
 
-  saveDataToLocalStorage();
+  saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد تحديث الجدول
+  updateProductTotal();  // تحديث المجموع بعد إضافة أو تعديل منتج
 }
 
 // إضافة منتج
@@ -254,8 +208,7 @@ function addProduct() {
     };
 
     products.push(product);
-    saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد إضافة المنتج
-    renderProducts();
+    renderProducts();  // تحديث عرض المنتجات بعد الإضافة
   } else {
     alert("يرجى ملء جميع الحقول بشكل صحيح.");
   }
@@ -299,13 +252,19 @@ function saveProduct(index) {
   editBtn.setAttribute('onclick', `editProduct(${index})`);
 
   saveDataToLocalStorage();  // حفظ التغييرات في LocalStorage بعد التعديل
-  renderProducts();
+  updateProductTotal();  // تحديث المجموع بعد التعديل
+}
+
+// حذف منتج
+function deleteProduct(index) {
+  products.splice(index, 1);
+  saveDataToLocalStorage();  // حفظ البيانات بعد الحذف
+  renderProducts();  // تحديث عرض المنتجات
 }
 
 // حفظ البيانات في LocalStorage عند تحميل الصفحة
 window.onload = function() {
-  renderProducts();
-  renderExpenses();
+  renderProducts();  // عرض المنتجات عند تحميل الصفحة
 };
 
 </script>
