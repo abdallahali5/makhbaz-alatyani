@@ -269,7 +269,7 @@
         const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
         const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
         const expenses = parseFloat(document.getElementById('expenses').value) || 0;
-        const totalInBox = receipt - distribution - expenses;
+        const totalInBox = (receipt + distribution) - expenses;
 
         // عرض المبلغ المتبقي في الصندوق
         document.getElementById('remaining-box').textContent = totalInBox.toFixed(2);
