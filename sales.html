@@ -254,8 +254,7 @@ function renderProducts() {
       <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
       <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
       <td>${(product.sales * product.price).toFixed(2)}</td>
-      <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
-          <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
+      <td><button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
     `;
     tableBody.appendChild(row);
   });
@@ -285,45 +284,18 @@ function addProduct() {
   }
 }
 
-// تعديل منتج
-function editProduct(index) {
-  const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
-  const name = row.cells[0];
-  const stock = row.cells[1].querySelector('input');
-  const sales = row.cells[2].querySelector('input');
-  const price = row.cells[3].querySelector('input');
+// تحديث المنتج بناءً على التعديل
+function updateProduct(index, field, value) {
+  if (field === 'stock') {
+    products[index].stock = parseInt(value) || 0;
+  } else if (field === 'sales') {
+    products[index].sales = parseInt(value) || 0;
+  } else if (field === 'price') {
+    products[index].price = parseFloat(value) || 0;
+  }
 
-  name.contentEditable = true;
-  stock.disabled = false;
-  sales.disabled = false;
-  price.disabled = false;
-
-  const editBtn = row.querySelector('.edit-btn');
-  editBtn.textContent = "حفظ التعديل";
-  editBtn.setAttribute('onclick', `saveProduct(${index})`);
-}
-
-// حفظ التعديل
-function saveProduct(index) {
-  const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
-  const product = products[index];
-
-  product.name = row.cells[0].textContent;
-  product.stock = parseInt(row.cells[1].querySelector('input').value);
-  product.sales = parseInt(row.cells[2].querySelector('input').value);
-  product.price = parseFloat(row.cells[3].querySelector('input').value);
-
-  row.cells[0].contentEditable = false;
-  row.cells[1].querySelector('input').disabled = true;
-  row.cells[2].querySelector('input').disabled = true;
-  row.cells[3].querySelector('input').disabled = true;
-
-  const editBtn = row.querySelector('.edit-btn');
-  editBtn.textContent = "تعديل";
-  editBtn.setAttribute('onclick', `editProduct(${index})`);
-
-  saveDataToLocalStorage();  // حفظ التغييرات في LocalStorage بعد التعديل
-  updateProductTotal();  // تحديث المجموع بعد التعديل
+  saveDataToLocalStorage();  // حفظ التعديلات في LocalStorage
+  updateProductTotal();  // تحديث الإجمالي بناءً على التعديل
 }
 
 // حذف منتج
