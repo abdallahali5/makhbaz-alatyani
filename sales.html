@@ -70,7 +70,8 @@
         <thead>
             <tr>
                 <th>المنتج</th>
-                <th>الكمية المتوفرة</th>
+                <th>الكمية الموجودة</th>
+                <th>المبيعات</th>
                 <th>السعر (شيكل)</th>
                 <th>إجمالي السعر (شيكل)</th>
                 <th>العمليات</th>
@@ -83,9 +84,9 @@
 
     <!-- إجمالي الكمية والسعر الكلي -->
     <div class="total">
-        الكمية الكلية: <span id="total-quantity">0</span> وحدة
+        الكمية الكلية الموجودة: <span id="total-quantity">0</span> وحدة
         <br>
-        السعر الكلي: <span id="total-price">0</span> شيكل
+        إجمالي المبيعات: <span id="total-sales">0</span> شيكل
     </div>
 
     <!-- زر الرجوع -->
@@ -113,16 +114,16 @@
     // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
     function updateProductTotal() {
         let totalQuantity = 0;
-        let totalPrice = 0;
+        let totalSales = 0;
 
         products.forEach(product => {
             totalQuantity += product.stock;
-            totalPrice += product.stock * product.price;
+            totalSales += product.sales * product.price;
         });
 
         // تحديث الكمية والسعر الكلي
         document.getElementById('total-quantity').textContent = totalQuantity;
-        document.getElementById('total-price').textContent = totalPrice;
+        document.getElementById('total-sales').textContent = totalSales.toFixed(2);
     }
 
     // إضافة منتج
@@ -135,7 +136,8 @@
             const product = {
                 name: productName,
                 price: productPrice,
-                stock: productStock
+                stock: productStock,
+                sales: 0 // قيمة المبيعات تكون صفر عند إضافة المنتج
             };
 
             products.push(product);
@@ -158,8 +160,9 @@
             row.innerHTML = `
                 <td contenteditable="true">${product.name}</td>
                 <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
+                <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
                 <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
-                <td>${(product.stock * product.price).toFixed(2)}</td>
+                <td>${(product.sales * product.price).toFixed(2)}</td>
                 <td><button class="edit-btn" onclick="editProduct(${index})">تعديل</button>
                     <button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
             `;
@@ -175,11 +178,13 @@
         const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
         const name = row.cells[0];
         const stock = row.cells[1].querySelector('input');
-        const price = row.cells[2].querySelector('input');
+        const sales = row.cells[2].querySelector('input');
+        const price = row.cells[3].querySelector('input');
 
         // تمكين الحقول لتعديل المنتج
         name.contentEditable = true;
         stock.disabled = false;
+        sales.disabled = false;
         price.disabled = false;
 
         // تغيير الزر "تعديل" إلى "حفظ التعديل"
@@ -195,11 +200,13 @@
 
         product.name = row.cells[0].textContent;
         product.stock = parseInt(row.cells[1].querySelector('input').value);
-        product.price = parseFloat(row.cells[2].querySelector('input').value);
+        product.sales = parseInt(row.cells[2].querySelector('input').value);
+        product.price = parseFloat(row.cells[3].querySelector('input').value);
 
         row.cells[0].contentEditable = false;
         row.cells[1].querySelector('input').disabled = true;
         row.cells[2].querySelector('input').disabled = true;
+        row.cells[3].querySelector('input').disabled = true;
 
         const editBtn = row.querySelector('.edit-btn');
         editBtn.textContent = "تعديل";
@@ -241,12 +248,12 @@
         doc.setFont('Amiri');
 
         doc.text("قائمة المنتجات اليومية", 20, 10);
-        doc.text(`الكمية الكلية: ${document.getElementById('total-quantity').textContent}`, 20, 20);
-        doc.text(`السعر الكلي: ${document.getElementById('total-price').textContent}`, 20, 30);
+        doc.text(`الكمية الكلية الموجودة: ${document.getElementById('total-quantity').textContent}`, 20, 20);
+        doc.text(`إجمالي المبيعات: ${document.getElementById('total-sales').textContent}`, 20, 30);
 
         let yPosition = 40;
         products.forEach(product => {
-            doc.text(`${product.name} - الكمية: ${product.stock} - السعر: ${product.price} شيكل - الإجمالي: ${(product.stock * product.price).toFixed(2)} شيكل`, 20, yPosition);
+            doc.text(`${product.name} - الكمية الموجودة: ${product.stock} - المبيعات: ${product.sales} - السعر: ${product.price} شيكل - الإجمالي: ${(product.sales * product.price).toFixed(2)} شيكل`, 20, yPosition);
             yPosition += 10;
         });
 
