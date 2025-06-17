@@ -109,23 +109,6 @@
         صافي الصندوق: <span id="net-box">0</span> شيكل
     </div>
 
-    <!-- جدول المصروفات -->
-    <h3>المصروفات</h3>
-    <button onclick="addExpense()">إضافة مصروف</button>
-    <table id="expenses-table">
-        <thead>
-            <tr>
-                <th>نوع المصروف</th>
-                <th>سعر المصروف (شيكل)</th>
-                <th>الملاحظات</th>
-                <th>العمليات</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- المصروفات ستضاف هنا ديناميكيًا -->
-        </tbody>
-    </table>
-
     <!-- زر الرجوع -->
     <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
 
@@ -155,10 +138,15 @@ function updateProductTotal() {
 
   // حساب الكميات والإجماليات
   products.forEach(product => {
-    totalQuantity += product.stock;
-    totalSales += product.sales * product.price;
-    totalStockValue += product.stock * product.price;
-    totalSalesValue += product.sales * product.price;
+    // التأكد من أن القيمة المدخلة ليست فارغة أو غير صالحة
+    const productStock = product.stock || 0;
+    const productSales = product.sales || 0;
+    const productPrice = product.price || 0;
+
+    totalQuantity += productStock;
+    totalSales += productSales * productPrice;
+    totalStockValue += productStock * productPrice;
+    totalSalesValue += productSales * productPrice;
   });
 
   // تحديث الكميات والإجمالي في الواجهة
