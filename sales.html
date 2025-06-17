@@ -82,11 +82,24 @@
         </tbody>
     </table>
 
+    <!-- مربعي استلام الصندوق و تسليم الصندوق -->
+    <div>
+        <label for="box-receipt">استلام الصندوق (شيكل):</label>
+        <input type="number" id="box-receipt" value="0" onchange="calculateReceipt()" />
+
+        <label for="box-distribution">تسليم الصندوق (شيكل):</label>
+        <input type="number" id="box-distribution" value="0" onchange="calculateReceipt()" />
+    </div>
+
     <!-- إجمالي الكمية والسعر الكلي -->
     <div class="total">
         الكمية الكلية الموجودة: <span id="total-quantity">0</span> وحدة
         <br>
         إجمالي المبيعات: <span id="total-sales">0</span> شيكل
+        <br>
+        الكمية الموجودة الإجمالية: <span id="total-stock-value">0</span> شيكل
+        <br>
+        الكمية المباعة الإجمالية: <span id="total-sales-value">0</span> شيكل
     </div>
 
     <!-- زر الرجوع -->
@@ -115,15 +128,21 @@
     function updateProductTotal() {
         let totalQuantity = 0;
         let totalSales = 0;
+        let totalStockValue = 0;
+        let totalSalesValue = 0;
 
         products.forEach(product => {
             totalQuantity += product.stock;
             totalSales += product.sales * product.price;
+            totalStockValue += product.stock * product.price;
+            totalSalesValue += product.sales * product.price;
         });
 
         // تحديث الكمية والسعر الكلي
         document.getElementById('total-quantity').textContent = totalQuantity;
         document.getElementById('total-sales').textContent = totalSales.toFixed(2);
+        document.getElementById('total-stock-value').textContent = totalStockValue.toFixed(2);
+        document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
     }
 
     // إضافة منتج
@@ -236,6 +255,16 @@
     // الرجوع إلى الصفحة الرئيسية
     function goBack() {
         window.location.href = "index.html"; // تأكد من تعديل الرابط حسب هيكل موقعك
+    }
+
+    // حساب استلام وتسليم الصندوق
+    function calculateReceipt() {
+        const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
+        const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
+        const totalInBox = receipt - distribution;
+
+        // يمكن استخدام هذه القيمة للعرض أو لحساب باقي الحسابات
+        console.log("المبلغ المتبقي في الصندوق: " + totalInBox);
     }
 
     // حفظ القائمة اليومية بتنسيق PDF
