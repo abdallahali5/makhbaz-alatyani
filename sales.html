@@ -109,6 +109,23 @@
         صافي الصندوق: <span id="net-box">0</span> شيكل
     </div>
 
+    <!-- جدول المصروفات -->
+    <h3>المصروفات</h3>
+    <button onclick="addExpense()">إضافة مصروف</button>
+    <table id="expenses-table">
+        <thead>
+            <tr>
+                <th>نوع المصروف</th>
+                <th>سعر المصروف (شيكل)</th>
+                <th>الملاحظات</th>
+                <th>العمليات</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- المصروفات ستضاف هنا ديناميكيًا -->
+        </tbody>
+    </table>
+
     <!-- زر الرجوع -->
     <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
 
@@ -127,6 +144,7 @@
 <script>
 // استرجاع البيانات من LocalStorage عند تحميل الصفحة
 let products = JSON.parse(localStorage.getItem("products")) || [];
+let expensesData = JSON.parse(localStorage.getItem("expenses")) || [];
 
 // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
 function updateProductTotal() {
@@ -168,6 +186,52 @@ function calculateReceipt() {
 // حفظ البيانات في LocalStorage
 function saveDataToLocalStorage() {
   localStorage.setItem("products", JSON.stringify(products));
+  localStorage.setItem("expenses", JSON.stringify(expensesData));
+}
+
+// عرض المصروفات في الجدول
+function renderExpenses() {
+  const tableBody = document.querySelector("#expenses-table tbody");
+  tableBody.innerHTML = ""; // مسح الجدول الحالي
+
+  expensesData.forEach((expense, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${expense.type}</td>
+      <td>${expense.price}</td>
+      <td>${expense.notes}</td>
+      <td><button class="delete-btn" onclick="deleteExpense(${index})">حذف</button></td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
+
+// إضافة مصروف
+function addExpense() {
+  const expenseType = prompt("أدخل نوع المصروف:");
+  const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
+  const expenseNotes = prompt("أدخل ملاحظات المصروف:");
+
+  if (expenseType && !isNaN(expensePrice)) {
+    const expense = {
+      type: expenseType,
+      price: expensePrice,
+      notes: expenseNotes
+    };
+
+    expensesData.push(expense);
+    saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد إضافة المصروف
+    renderExpenses();  // عرض المصروفات في الجدول
+  } else {
+    alert("يرجى ملء جميع الحقول بشكل صحيح.");
+  }
+}
+
+// حذف المصروف
+function deleteExpense(index) {
+  expensesData.splice(index, 1);
+  saveDataToLocalStorage();  // حفظ البيانات بعد حذف المصروف
+  renderExpenses();  // تحديث عرض المصروفات
 }
 
 // عرض المنتجات في الجدول
@@ -265,8 +329,8 @@ function deleteProduct(index) {
 // حفظ البيانات في LocalStorage عند تحميل الصفحة
 window.onload = function() {
   renderProducts();  // عرض المنتجات عند تحميل الصفحة
+  renderExpenses();  // عرض المصروفات عند تحميل الصفحة
 };
-
 </script>
 
 </body>
