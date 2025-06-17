@@ -269,11 +269,14 @@
         const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
         const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
         const expenses = parseFloat(document.getElementById('expenses').value) || 0;
-        const totalInBox = (receipt + distribution) - expenses;
 
-        // عرض المبلغ المتبقي في الصندوق
-        document.getElementById('remaining-box').textContent = totalInBox.toFixed(2);
-        document.getElementById('net-box').textContent = totalInBox.toFixed(2); // صافي الصندوق
+        // حساب المبلغ المتبقي في الصندوق
+        const remainingBox = receipt + distribution;
+        document.getElementById('remaining-box').textContent = remainingBox.toFixed(2);
+
+        // حساب صافي الصندوق
+        const netBox = remainingBox - expenses;
+        document.getElementById('net-box').textContent = netBox.toFixed(2);
     }
 
     // حفظ القائمة اليومية بتنسيق PDF
