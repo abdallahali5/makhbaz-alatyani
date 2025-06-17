@@ -109,23 +109,6 @@
         صافي الصندوق: <span id="net-box">0</span> شيكل
     </div>
 
-    <!-- جدول المصروفات -->
-    <h3>المصروفات</h3>
-    <button onclick="addExpense()">إضافة مصروف</button>
-    <table id="expenses-table">
-        <thead>
-            <tr>
-                <th>نوع المصروف</th>
-                <th>سعر المصروف (شيكل)</th>
-                <th>الملاحظات</th>
-                <th>العمليات</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- المصروفات ستضاف هنا ديناميكيًا -->
-        </tbody>
-    </table>
-
     <!-- زر الرجوع -->
     <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
 
@@ -153,6 +136,7 @@ function updateProductTotal() {
   let totalStockValue = 0;
   let totalSalesValue = 0;
 
+  // حساب الكميات والإجماليات
   products.forEach(product => {
     totalQuantity += product.stock;
     totalSales += product.sales * product.price;
@@ -160,6 +144,7 @@ function updateProductTotal() {
     totalSalesValue += product.sales * product.price;
   });
 
+  // تحديث الكميات والإجمالي في الواجهة
   document.getElementById('total-quantity').textContent = totalQuantity;
   document.getElementById('total-sales').textContent = totalSales.toFixed(2);
   document.getElementById('total-stock-value').textContent = totalStockValue.toFixed(2);
@@ -172,9 +157,11 @@ function calculateReceipt() {
   const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
   const expenses = parseFloat(document.getElementById('expenses').value) || 0;
 
+  // حساب المبلغ المتبقي في الصندوق
   const remainingBox = receipt + distribution;
   document.getElementById('remaining-box').textContent = remainingBox.toFixed(2);
 
+  // حساب صافي الصندوق
   const netBox = remainingBox - expenses;
   document.getElementById('net-box').textContent = netBox.toFixed(2);
 }
