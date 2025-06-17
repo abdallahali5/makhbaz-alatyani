@@ -138,15 +138,17 @@ function updateProductTotal() {
 
   // حساب الكميات والإجماليات
   products.forEach(product => {
-    // التأكد من أن القيمة المدخلة ليست فارغة أو غير صالحة
     const productStock = product.stock || 0;
     const productSales = product.sales || 0;
     const productPrice = product.price || 0;
 
-    totalQuantity += productStock;
-    totalSales += productSales * productPrice;
-    totalStockValue += productStock * productPrice;
-    totalSalesValue += productSales * productPrice;
+    // التأكد من أن الكميات والأسعار موجودة
+    if (productStock > 0 && productPrice > 0) {
+      totalQuantity += productStock;
+      totalSales += productSales * productPrice;
+      totalStockValue += productStock * productPrice;
+      totalSalesValue += productSales * productPrice;
+    }
   });
 
   // تحديث الكميات والإجمالي في الواجهة
