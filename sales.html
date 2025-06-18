@@ -32,7 +32,7 @@
             font-size: 20px;
             font-weight: bold;
         }
-        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn, .delete-btn, .day-btn {
+        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn, .delete-btn {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -41,44 +41,8 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover, .day-btn:hover {
+        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover {
             background-color: #45a049;
-        }
-        .log {
-            margin-top: 20px;
-            text-align: left;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .days-container {
-            margin: 20px 0;
-        }
-        .day-btn {
-            margin: 5px;
-            padding: 8px 12px;
-            background-color: #3498db;
-        }
-        .total-container {
-            margin-top: 20px;
-        }
-        #daily-day {
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .input-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .input-container input {
-            width: 30%;
-            margin: 5px;
         }
     </style>
 </head>
@@ -87,15 +51,6 @@
 <div class="container">
     <h2>صفحة المبيعات اليومية</h2>
 
-    <!-- عرض اليوم الحالي فوق الجدول -->
-    <div id="daily-day">اليوم: </div>
-
-    <!-- أزرار أيام الشهر -->
-    <div class="days-container">
-        <!-- يتم إضافة الأزرار هنا -->
-    </div>
-
-    <!-- زر إضافة منتج -->
     <button class="add-product-btn" onclick="addProduct()">إضافة منتج</button>
 
     <!-- جدول المبيعات -->
@@ -115,262 +70,85 @@
         </tbody>
     </table>
 
-    <!-- مربعي استلام الصندوق و تسليم الصندوق -->
-    <div class="input-container">
-        <div>
-            <label for="box-receipt">استلام الصندوق (شيكل):</label>
-            <input type="number" id="box-receipt" value="0" onchange="calculateReceipt()" />
-        </div>
-        <div>
-            <label for="box-distribution">تسليم الصندوق (شيكل):</label>
-            <input type="number" id="box-distribution" value="0" onchange="calculateReceipt()" />
-        </div>
-    </div>
-
-    <!-- مربع المصروفات في الأعلى -->
-    <div class="input-container">
-        <div>
-            <label for="expenses">المصروفات (شيكل):</label>
-            <input type="number" id="expenses" value="0" onchange="calculateReceipt()" />
-        </div>
-    </div>
-
-    <!-- إجمالي الكمية والسعر الكلي -->
-    <div class="total-container">
-        الكمية الكلية الموجودة: <span id="total-quantity">0</span> وحدة
-        <br>
-        إجمالي المبيعات: <span id="total-sales">0</span> شيكل
-        <br>
-        الكمية الموجودة الإجمالية: <span id="total-stock-value">0</span> شيكل
-        <br>
-        الكمية المباعة الإجمالية: <span id="total-sales-value">0</span> شيكل
-        <br>
-        المبلغ المتبقي في الصندوق: <span id="remaining-box">0</span> شيكل
-        <br>
-        صافي الصندوق: <span id="net-box">0</span> شيكل
-    </div>
-
-    <!-- جدول المصروفات -->
-    <h3>المصروفات</h3>
-    <button onclick="addExpense()">إضافة مصروف</button>
-    <table id="expenses-table">
-        <thead>
-            <tr>
-                <th>نوع المصروف</th>
-                <th>سعر المصروف (شيكل)</th>
-                <th>الملاحظات</th>
-                <th>العمليات</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- المصروفات ستضاف هنا ديناميكيًا -->
-        </tbody>
-    </table>
-
-    <!-- زر الرجوع -->
-    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
-
-    <!-- زر حفظ PDF -->
-    <button class="pdf-btn" onclick="downloadPDF()">حفظ القائمه اليومية PDF</button>
-
-    <!-- سجل العمليات -->
-    <div class="log" id="sales-log">
-        <h3>سجل العمليات:</h3>
-        <ul id="log-list">
-            <!-- يتم عرض العمليات هنا -->
-        </ul>
-    </div>
+    <button class="back-btn" onclick="goBack()">الرجوع إلى الصفحة الرئيسية</button>
 </div>
 
 <script>
-// استرجاع البيانات من LocalStorage عند تحميل الصفحة
-let products = JSON.parse(localStorage.getItem("products")) || [];
-let expensesData = JSON.parse(localStorage.getItem("expenses")) || [];
-let dailySales = JSON.parse(localStorage.getItem("dailySales")) || {};
-let currentDay = 1; // الافتراضي اليوم الأول
-
-// تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
-function updateProductTotal() {
-  let totalQuantity = 0;
-  let totalSales = 0;
-  let totalStockValue = 0;
-  let totalSalesValue = 0;
-
-  products.forEach(product => {
-    const productStock = product.stock || 0;
-    const productSales = product.sales || 0;
-    const productPrice = product.price || 0;
-
-    if (productStock > 0 && productPrice > 0) {
-      totalQuantity += productStock;
-      totalSales += productSales * productPrice;
-      totalStockValue += productStock * productPrice;
-      totalSalesValue += productSales * productPrice;
+// جلب المنتجات من LocalStorage
+function fetchProducts() {
+    const storedProducts = JSON.parse(localStorage.getItem("products"));
+    if (storedProducts) {
+        renderProducts(storedProducts);
+    } else {
+        alert("لا توجد منتجات.");
     }
-  });
-
-  document.getElementById('total-quantity').textContent = totalQuantity;
-  document.getElementById('total-sales').textContent = totalSales.toFixed(2);
-  document.getElementById('total-stock-value').textContent = totalStockValue.toFixed(2);
-  document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
 }
 
-function calculateReceipt() {
-  const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
-  const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
-  const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+// عرض المنتجات في الجدول
+function renderProducts(products) {
+    const tableBody = document.querySelector("#sales-table tbody");
+    tableBody.innerHTML = ''; // مسح الجدول الحالي
 
-  const remainingBox = receipt + distribution;
-  document.getElementById('remaining-box').textContent = remainingBox.toFixed(2);
-
-  const netBox = remainingBox - expenses;
-  document.getElementById('net-box').textContent = netBox.toFixed(2);
+    products.forEach(product => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${product.name}</td>
+            <td>${product.stock}</td>
+            <td><input type="number" value="0" min="0" onchange="updateSales(${products.indexOf(product)}, 'sales', this.value)"></td>
+            <td>${product.price}</td>
+            <td>${(product.price * 0).toFixed(2)}</td>
+            <td><button class="delete-btn" onclick="deleteProduct(${products.indexOf(product)})">حذف</button></td>
+        `;
+        tableBody.appendChild(row);
+    });
 }
 
-// حفظ البيانات في LocalStorage
-function saveDataToLocalStorage() {
-  localStorage.setItem("products", JSON.stringify(products));
-  localStorage.setItem("expenses", JSON.stringify(expensesData));
-  localStorage.setItem("dailySales", JSON.stringify(dailySales));
-}
-
-// عرض المصروفات في الجدول
-function renderExpenses() {
-  const tableBody = document.querySelector("#expenses-table tbody");
-  tableBody.innerHTML = "";
-
-  expensesData.forEach((expense, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${expense.type}</td>
-      <td>${expense.price}</td>
-      <td>${expense.notes}</td>
-      <td><button class="delete-btn" onclick="deleteExpense(${index})">حذف</button></td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-// عرض أزرار الأيام
-function renderDaysButtons() {
-  const daysContainer = document.querySelector(".days-container");
-  for (let i = 1; i <= 31; i++) {
-    const button = document.createElement("button");
-    button.classList.add("day-btn");
-    button.textContent = `اليوم ${i}`;
-    button.onclick = function() {
-      loadDailySales(i);
-    };
-    daysContainer.appendChild(button);
-  }
-}
-
-// تحميل المبيعات اليومية عند اختيار اليوم
-function loadDailySales(day) {
-  currentDay = day;
-  document.getElementById('daily-day').textContent = `اليوم: ${currentDay}`;
-  const salesForDay = dailySales[currentDay] || [];
-  products = salesForDay;
-  renderProducts();
-}
-
-// إضافة منتج
+// إضافة منتج (يتم تنفيذها بناءً على المتطلبات، أو يمكن الاستفادة من `products.html` مباشرة)
 function addProduct() {
-  const productName = prompt("أدخل اسم المنتج:");
-  const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
-  const productStock = parseInt(prompt("أدخل كمية المنتج:"));
+    const productName = prompt("أدخل اسم المنتج:");
+    const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
+    const productStock = parseInt(prompt("أدخل كمية المنتج:"));
 
-  if (productName && !isNaN(productPrice) && !isNaN(productStock)) {
-    const product = {
-      name: productName,
-      price: productPrice,
-      stock: productStock,
-      sales: 0
-    };
-
-    products.push(product);
-
-    // إضافة المنتج لجميع الأيام
-    for (let i = 1; i <= 31; i++) {
-      if (!dailySales[i]) {
-        dailySales[i] = [];
-      }
-      dailySales[i].push(product);
+    if (productName && !isNaN(productPrice) && !isNaN(productStock)) {
+        const newProduct = { name: productName, price: productPrice, stock: productStock };
+        const products = JSON.parse(localStorage.getItem("products")) || [];
+        products.push(newProduct);
+        localStorage.setItem("products", JSON.stringify(products));
+        renderProducts(products);
+    } else {
+        alert("يرجى إدخال بيانات صحيحة.");
     }
-
-    saveDataToLocalStorage();
-    renderProducts();
-  } else {
-    alert("يرجى ملء جميع الحقول بشكل صحيح.");
-  }
 }
 
-// تحديث المنتج بناءً على التعديل
-function updateProduct(index, field, value) {
-  if (field === 'stock') {
-    products[index].stock = parseInt(value) || 0;
-  } else if (field === 'sales') {
-    products[index].sales = parseInt(value) || 0;
-  } else if (field === 'price') {
-    products[index].price = parseFloat(value) || 0;
-  }
+// تحديث المبيعات
+function updateSales(index, field, value) {
+    const products = JSON.parse(localStorage.getItem("products"));
+    products[index][field] = parseInt(value) || 0;
 
-  saveDataToLocalStorage();
-  updateProductTotal();
+    // تحديث إجمالي السعر في الجدول
+    const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
+    const salesValue = products[index].sales * products[index].price;
+    row.cells[4].textContent = salesValue.toFixed(2);
+
+    localStorage.setItem("products", JSON.stringify(products)); // حفظ البيانات المعدلة
 }
 
 // حذف منتج
 function deleteProduct(index) {
-  products.splice(index, 1);
-
-  // حذف المنتج من جميع الأيام
-  for (let i = 1; i <= 31; i++) {
-    if (dailySales[i]) {
-      dailySales[i] = dailySales[i].filter((_, i) => i !== index);
-    }
-  }
-
-  saveDataToLocalStorage();
-  renderProducts();
-}
-
-// إضافة مصروف
-function addExpense() {
-  const expenseType = prompt("أدخل نوع المصروف:");
-  const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
-  const expenseNotes = prompt("أدخل ملاحظات المصروف:");
-
-  if (expenseType && !isNaN(expensePrice)) {
-    const expense = {
-      type: expenseType,
-      price: expensePrice,
-      notes: expenseNotes
-    };
-
-    expensesData.push(expense);
-    saveDataToLocalStorage();
-    renderExpenses();
-  } else {
-    alert("يرجى ملء جميع الحقول بشكل صحيح.");
-  }
-}
-
-// حذف مصروف
-function deleteExpense(index) {
-  expensesData.splice(index, 1);
-  saveDataToLocalStorage();
-  renderExpenses();
+    const products = JSON.parse(localStorage.getItem("products"));
+    products.splice(index, 1);
+    localStorage.setItem("products", JSON.stringify(products)); // حفظ البيانات بعد الحذف
+    renderProducts(products);
 }
 
 // زر الرجوع إلى الصفحة الرئيسية (أو الصفحة السابقة)
 function goBack() {
-  window.history.back();  // إرجاع الصفحة إلى الوراء
+    window.history.back();  // إرجاع الصفحة إلى الوراء
 }
 
+// تحميل المنتجات عند فتح صفحة المبيعات اليومية
 window.onload = function() {
-  renderDaysButtons();  // عرض أزرار الأيام
-  renderProducts();     // عرض المنتجات عند تحميل الصفحة
-  renderExpenses();     // عرض المصروفات عند تحميل الصفحة
+    fetchProducts();  // جلب المنتجات من LocalStorage عند تحميل الصفحة
 };
 </script>
 
