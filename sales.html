@@ -63,12 +63,32 @@
             padding: 8px 12px;
             background-color: #3498db;
         }
+        .total-container {
+            margin-top: 20px;
+        }
+        #daily-day {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-container input {
+            width: 30%;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>صفحة المبيعات اليومية</h2>
+
+    <!-- عرض اليوم الحالي فوق الجدول -->
+    <div id="daily-day">اليوم: </div>
 
     <!-- أزرار أيام الشهر -->
     <div class="days-container">
@@ -96,19 +116,27 @@
     </table>
 
     <!-- مربعي استلام الصندوق و تسليم الصندوق -->
-    <div>
-        <label for="box-receipt">استلام الصندوق (شيكل):</label>
-        <input type="number" id="box-receipt" value="0" onchange="calculateReceipt()" />
+    <div class="input-container">
+        <div>
+            <label for="box-receipt">استلام الصندوق (شيكل):</label>
+            <input type="number" id="box-receipt" value="0" onchange="calculateReceipt()" />
+        </div>
+        <div>
+            <label for="box-distribution">تسليم الصندوق (شيكل):</label>
+            <input type="number" id="box-distribution" value="0" onchange="calculateReceipt()" />
+        </div>
+    </div>
 
-        <label for="box-distribution">تسليم الصندوق (شيكل):</label>
-        <input type="number" id="box-distribution" value="0" onchange="calculateReceipt()" />
-
-        <label for="expenses">المصروفات (شيكل):</label>
-        <input type="number" id="expenses" value="0" onchange="calculateReceipt()" />
+    <!-- مربع المصروفات في الأعلى -->
+    <div class="input-container">
+        <div>
+            <label for="expenses">المصروفات (شيكل):</label>
+            <input type="number" id="expenses" value="0" onchange="calculateReceipt()" />
+        </div>
     </div>
 
     <!-- إجمالي الكمية والسعر الكلي -->
-    <div class="total">
+    <div class="total-container">
         الكمية الكلية الموجودة: <span id="total-quantity">0</span> وحدة
         <br>
         إجمالي المبيعات: <span id="total-sales">0</span> شيكل
@@ -159,6 +187,7 @@
 let products = JSON.parse(localStorage.getItem("products")) || [];
 let expensesData = JSON.parse(localStorage.getItem("expenses")) || [];
 let dailySales = JSON.parse(localStorage.getItem("dailySales")) || {};
+let currentDay = 1; // الافتراضي اليوم الأول
 
 // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
 function updateProductTotal() {
@@ -186,7 +215,6 @@ function updateProductTotal() {
   document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
 }
 
-// حساب استلام وتسليم الصندوق والمصروفات
 function calculateReceipt() {
   const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
   const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
@@ -239,7 +267,9 @@ function renderDaysButtons() {
 
 // تحميل المبيعات اليومية عند اختيار اليوم
 function loadDailySales(day) {
-  const salesForDay = dailySales[day] || [];
+  currentDay = day;
+  document.getElementById('daily-day').textContent = `اليوم: ${currentDay}`;
+  const salesForDay = dailySales[currentDay] || [];
   products = salesForDay;
   renderProducts();
 }
