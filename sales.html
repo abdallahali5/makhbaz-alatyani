@@ -203,12 +203,12 @@ function renderExpenses() {
 
   expensesData.forEach((expense, index) => {
     const row = document.createElement("tr");
-    row.innerHTML = 
+    row.innerHTML = `
       <td>${expense.type}</td>
       <td>${expense.price}</td>
       <td>${expense.notes}</td>
       <td><button class="delete-btn" onclick="deleteExpense(${index})">حذف</button></td>
-    ;
+    `;
     tableBody.appendChild(row);
   });
 }
@@ -248,14 +248,14 @@ function renderProducts() {
 
   products.forEach((product, index) => {
     const row = document.createElement("tr");
-    row.innerHTML = 
+    row.innerHTML = `
       <td contenteditable="true">${product.name}</td>
       <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
       <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
       <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
       <td>${(product.sales * product.price).toFixed(2)}</td>
       <td><button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
-    ;
+    `;
     tableBody.appendChild(row);
   });
 
