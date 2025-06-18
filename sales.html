@@ -239,7 +239,6 @@ function renderDaysButtons() {
 
 // تحميل المبيعات اليومية عند اختيار اليوم
 function loadDailySales(day) {
-  // جلب المبيعات اليومية من LocalStorage
   const salesForDay = dailySales[day] || [];
   products = salesForDay;
   renderProducts();
@@ -260,6 +259,7 @@ function addProduct() {
     };
 
     products.push(product);
+
     // إضافة المنتج لجميع الأيام
     for (let i = 1; i <= 31; i++) {
       if (!dailySales[i]) {
@@ -292,6 +292,14 @@ function updateProduct(index, field, value) {
 // حذف منتج
 function deleteProduct(index) {
   products.splice(index, 1);
+
+  // حذف المنتج من جميع الأيام
+  for (let i = 1; i <= 31; i++) {
+    if (dailySales[i]) {
+      dailySales[i] = dailySales[i].filter((_, i) => i !== index);
+    }
+  }
+
   saveDataToLocalStorage();
   renderProducts();
 }
