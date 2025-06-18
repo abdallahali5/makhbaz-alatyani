@@ -44,6 +44,17 @@
         .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover {
             background-color: #45a049;
         }
+        .log {
+            margin-top: 20px;
+            text-align: left;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +62,7 @@
 <div class="container">
     <h2>صفحة المبيعات اليومية</h2>
 
+    <!-- زر إضافة منتج -->
     <button class="add-product-btn" onclick="addProduct()">إضافة منتج</button>
 
     <!-- جدول المبيعات -->
@@ -70,85 +82,233 @@
         </tbody>
     </table>
 
-    <button class="back-btn" onclick="goBack()">الرجوع إلى الصفحة الرئيسية</button>
+    <!-- مربعي استلام الصندوق و تسليم الصندوق -->
+    <div>
+        <label for="box-receipt">استلام الصندوق (شيكل):</label>
+        <input type="number" id="box-receipt" value="0" onchange="calculateReceipt()" />
+
+        <label for="box-distribution">تسليم الصندوق (شيكل):</label>
+        <input type="number" id="box-distribution" value="0" onchange="calculateReceipt()" />
+
+        <label for="expenses">المصروفات (شيكل):</label>
+        <input type="number" id="expenses" value="0" onchange="calculateReceipt()" />
+    </div>
+
+    <!-- إجمالي الكمية والسعر الكلي -->
+    <div class="total">
+        الكمية الكلية الموجودة: <span id="total-quantity">0</span> وحدة
+        <br>
+        إجمالي المبيعات: <span id="total-sales">0</span> شيكل
+        <br>
+        الكمية الموجودة الإجمالية: <span id="total-stock-value">0</span> شيكل
+        <br>
+        الكمية المباعة الإجمالية: <span id="total-sales-value">0</span> شيكل
+        <br>
+        المبلغ المتبقي في الصندوق: <span id="remaining-box">0</span> شيكل
+        <br>
+        صافي الصندوق: <span id="net-box">0</span> شيكل
+    </div>
+
+    <!-- جدول المصروفات -->
+    <h3>المصروفات</h3>
+    <button onclick="addExpense()">إضافة مصروف</button>
+    <table id="expenses-table">
+        <thead>
+            <tr>
+                <th>نوع المصروف</th>
+                <th>سعر المصروف (شيكل)</th>
+                <th>الملاحظات</th>
+                <th>العمليات</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- المصروفات ستضاف هنا ديناميكيًا -->
+        </tbody>
+    </table>
+
+    <!-- زر الرجوع -->
+    <button class="back-btn" onclick="goBack()">الرجوع إلى القائمة الرئيسية</button>
+
+    <!-- زر حفظ PDF -->
+    <button class="pdf-btn" onclick="downloadPDF()">حفظ القائمه اليومية PDF</button>
+
+    <!-- سجل العمليات -->
+    <div class="log" id="sales-log">
+        <h3>سجل العمليات:</h3>
+        <ul id="log-list">
+            <!-- يتم عرض العمليات هنا -->
+        </ul>
+    </div>
 </div>
 
 <script>
-// جلب المنتجات من LocalStorage
-function fetchProducts() {
-    const storedProducts = JSON.parse(localStorage.getItem("products"));
-    if (storedProducts) {
-        renderProducts(storedProducts);
-    } else {
-        alert("لا توجد منتجات.");
+// استرجاع البيانات من LocalStorage عند تحميل الصفحة
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let expensesData = JSON.parse(localStorage.getItem("expenses")) || [];
+
+// تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
+function updateProductTotal() {
+  let totalQuantity = 0;
+  let totalSales = 0;
+  let totalStockValue = 0;
+  let totalSalesValue = 0;
+
+  // حساب الكميات والإجماليات
+  products.forEach(product => {
+    const productStock = product.stock || 0;
+    const productSales = product.sales || 0;
+    const productPrice = product.price || 0;
+
+    // التأكد من أن الكميات والأسعار موجودة
+    if (productStock > 0 && productPrice > 0) {
+      totalQuantity += productStock;
+      totalSales += productSales * productPrice;
+      totalStockValue += productStock * productPrice;
+      totalSalesValue += productSales * productPrice;
     }
+  });
+
+  // تحديث الكميات والإجمالي في الواجهة
+  document.getElementById('total-quantity').textContent = totalQuantity;
+  document.getElementById('total-sales').textContent = totalSales.toFixed(2);
+  document.getElementById('total-stock-value').textContent = totalStockValue.toFixed(2);
+  document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
+}
+
+// حساب استلام وتسليم الصندوق والمصروفات
+function calculateReceipt() {
+  const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
+  const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
+  const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+
+  // حساب المبلغ المتبقي في الصندوق
+  const remainingBox = receipt + distribution;
+  document.getElementById('remaining-box').textContent = remainingBox.toFixed(2);
+
+  // حساب صافي الصندوق
+  const netBox = remainingBox - expenses;
+  document.getElementById('net-box').textContent = netBox.toFixed(2);
+}
+
+// حفظ البيانات في LocalStorage
+function saveDataToLocalStorage() {
+  localStorage.setItem("products", JSON.stringify(products));
+  localStorage.setItem("expenses", JSON.stringify(expensesData));
+}
+
+// عرض المصروفات في الجدول
+function renderExpenses() {
+  const tableBody = document.querySelector("#expenses-table tbody");
+  tableBody.innerHTML = ""; // مسح الجدول الحالي
+
+  expensesData.forEach((expense, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${expense.type}</td>
+      <td>${expense.price}</td>
+      <td>${expense.notes}</td>
+      <td><button class="delete-btn" onclick="deleteExpense(${index})">حذف</button></td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
+
+// إضافة مصروف
+function addExpense() {
+  const expenseType = prompt("أدخل نوع المصروف:");
+  const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
+  const expenseNotes = prompt("أدخل ملاحظات المصروف:");
+
+  if (expenseType && !isNaN(expensePrice)) {
+    const expense = {
+      type: expenseType,
+      price: expensePrice,
+      notes: expenseNotes
+    };
+
+    expensesData.push(expense);
+    saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد إضافة المصروف
+    renderExpenses();  // عرض المصروفات في الجدول
+  } else {
+    alert("يرجى ملء جميع الحقول بشكل صحيح.");
+  }
+}
+
+// حذف المصروف
+function deleteExpense(index) {
+  expensesData.splice(index, 1);
+  saveDataToLocalStorage();  // حفظ البيانات بعد حذف المصروف
+  renderExpenses();  // تحديث عرض المصروفات
 }
 
 // عرض المنتجات في الجدول
-function renderProducts(products) {
-    const tableBody = document.querySelector("#sales-table tbody");
-    tableBody.innerHTML = ''; // مسح الجدول الحالي
+function renderProducts() {
+  const tableBody = document.querySelector("#sales-table tbody");
+  tableBody.innerHTML = ""; // مسح الجدول الحالي
 
-    products.forEach(product => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${product.name}</td>
-            <td>${product.stock}</td>
-            <td><input type="number" value="0" min="0" onchange="updateSales(${products.indexOf(product)}, 'sales', this.value)"></td>
-            <td>${product.price}</td>
-            <td>${(product.price * 0).toFixed(2)}</td>
-            <td><button class="delete-btn" onclick="deleteProduct(${products.indexOf(product)})">حذف</button></td>
-        `;
-        tableBody.appendChild(row);
-    });
+  products.forEach((product, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td contenteditable="true">${product.name}</td>
+      <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
+      <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
+      <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
+      <td>${(product.sales * product.price).toFixed(2)}</td>
+      <td><button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد تحديث الجدول
+  updateProductTotal();  // تحديث المجموع بعد إضافة أو تعديل منتج
 }
 
-// إضافة منتج (يتم تنفيذها بناءً على المتطلبات، أو يمكن الاستفادة من `products.html` مباشرة)
+// إضافة منتج
 function addProduct() {
-    const productName = prompt("أدخل اسم المنتج:");
-    const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
-    const productStock = parseInt(prompt("أدخل كمية المنتج:"));
+  const productName = prompt("أدخل اسم المنتج:");
+  const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
+  const productStock = parseInt(prompt("أدخل كمية المنتج:"));
 
-    if (productName && !isNaN(productPrice) && !isNaN(productStock)) {
-        const newProduct = { name: productName, price: productPrice, stock: productStock };
-        const products = JSON.parse(localStorage.getItem("products")) || [];
-        products.push(newProduct);
-        localStorage.setItem("products", JSON.stringify(products));
-        renderProducts(products);
-    } else {
-        alert("يرجى إدخال بيانات صحيحة.");
-    }
+  if (productName && !isNaN(productPrice) && !isNaN(productStock)) {
+    const product = {
+      name: productName,
+      price: productPrice,
+      stock: productStock,
+      sales: 0
+    };
+
+    products.push(product);
+    renderProducts();  // تحديث عرض المنتجات بعد الإضافة
+  } else {
+    alert("يرجى ملء جميع الحقول بشكل صحيح.");
+  }
 }
 
-// تحديث المبيعات
-function updateSales(index, field, value) {
-    const products = JSON.parse(localStorage.getItem("products"));
-    products[index][field] = parseInt(value) || 0;
+// تحديث المنتج بناءً على التعديل
+function updateProduct(index, field, value) {
+  if (field === 'stock') {
+    products[index].stock = parseInt(value) || 0;
+  } else if (field === 'sales') {
+    products[index].sales = parseInt(value) || 0;
+  } else if (field === 'price') {
+    products[index].price = parseFloat(value) || 0;
+  }
 
-    // تحديث إجمالي السعر في الجدول
-    const row = document.querySelector(`#sales-table tbody tr:nth-child(${index + 1})`);
-    const salesValue = products[index].sales * products[index].price;
-    row.cells[4].textContent = salesValue.toFixed(2);
-
-    localStorage.setItem("products", JSON.stringify(products)); // حفظ البيانات المعدلة
+  saveDataToLocalStorage();  // حفظ التعديلات في LocalStorage
+  updateProductTotal();  // تحديث الإجمالي بناءً على التعديل
 }
 
 // حذف منتج
 function deleteProduct(index) {
-    const products = JSON.parse(localStorage.getItem("products"));
-    products.splice(index, 1);
-    localStorage.setItem("products", JSON.stringify(products)); // حفظ البيانات بعد الحذف
-    renderProducts(products);
+  products.splice(index, 1);
+  saveDataToLocalStorage();  // حفظ البيانات بعد الحذف
+  renderProducts();  // تحديث عرض المنتجات
 }
 
-// زر الرجوع إلى الصفحة الرئيسية (أو الصفحة السابقة)
-function goBack() {
-    window.history.back();  // إرجاع الصفحة إلى الوراء
-}
-
-// تحميل المنتجات عند فتح صفحة المبيعات اليومية
+// حفظ البيانات في LocalStorage عند تحميل الصفحة
 window.onload = function() {
-    fetchProducts();  // جلب المنتجات من LocalStorage عند تحميل الصفحة
+  renderProducts();  // عرض المنتجات عند تحميل الصفحة
+  renderExpenses();  // عرض المصروفات عند تحميل الصفحة
 };
 </script>
 
