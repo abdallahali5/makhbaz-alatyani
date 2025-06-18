@@ -32,7 +32,7 @@
             font-size: 20px;
             font-weight: bold;
         }
-        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn, .delete-btn {
+        .back-btn, .pdf-btn, .edit-btn, .save-btn, .add-product-btn, .delete-btn, .day-btn {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -41,7 +41,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover {
+        .back-btn:hover, .pdf-btn:hover, .edit-btn:hover, .save-btn:hover, .add-product-btn:hover, .delete-btn:hover, .day-btn:hover {
             background-color: #45a049;
         }
         .log {
@@ -55,12 +55,25 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .days-container {
+            margin: 20px 0;
+        }
+        .day-btn {
+            margin: 5px;
+            padding: 8px 12px;
+            background-color: #3498db;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>صفحة المبيعات اليومية</h2>
+
+    <!-- أزرار أيام الشهر -->
+    <div class="days-container">
+        <!-- يتم إضافة الأزرار هنا -->
+    </div>
 
     <!-- زر إضافة منتج -->
     <button class="add-product-btn" onclick="addProduct()">إضافة منتج</button>
@@ -145,6 +158,7 @@
 // استرجاع البيانات من LocalStorage عند تحميل الصفحة
 let products = JSON.parse(localStorage.getItem("products")) || [];
 let expensesData = JSON.parse(localStorage.getItem("expenses")) || [];
+let dailySales = JSON.parse(localStorage.getItem("dailySales")) || {};
 
 // تحديث إجمالي السعر والكمية الكلية عند تعديل الكمية أو السعر
 function updateProductTotal() {
@@ -153,13 +167,11 @@ function updateProductTotal() {
   let totalStockValue = 0;
   let totalSalesValue = 0;
 
-  // حساب الكميات والإجماليات
   products.forEach(product => {
     const productStock = product.stock || 0;
     const productSales = product.sales || 0;
     const productPrice = product.price || 0;
 
-    // التأكد من أن الكميات والأسعار موجودة
     if (productStock > 0 && productPrice > 0) {
       totalQuantity += productStock;
       totalSales += productSales * productPrice;
@@ -168,24 +180,20 @@ function updateProductTotal() {
     }
   });
 
-  // تحديث الكميات والإجمالي في الواجهة
   document.getElementById('total-quantity').textContent = totalQuantity;
   document.getElementById('total-sales').textContent = totalSales.toFixed(2);
   document.getElementById('total-stock-value').textContent = totalStockValue.toFixed(2);
   document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
 }
 
-// حساب استلام وتسليم الصندوق والمصروفات
 function calculateReceipt() {
   const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
   const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
   const expenses = parseFloat(document.getElementById('expenses').value) || 0;
 
-  // حساب المبلغ المتبقي في الصندوق
   const remainingBox = receipt + distribution;
   document.getElementById('remaining-box').textContent = remainingBox.toFixed(2);
 
-  // حساب صافي الصندوق
   const netBox = remainingBox - expenses;
   document.getElementById('net-box').textContent = netBox.toFixed(2);
 }
@@ -194,12 +202,13 @@ function calculateReceipt() {
 function saveDataToLocalStorage() {
   localStorage.setItem("products", JSON.stringify(products));
   localStorage.setItem("expenses", JSON.stringify(expensesData));
+  localStorage.setItem("dailySales", JSON.stringify(dailySales));
 }
 
 // عرض المصروفات في الجدول
 function renderExpenses() {
   const tableBody = document.querySelector("#expenses-table tbody");
-  tableBody.innerHTML = ""; // مسح الجدول الحالي
+  tableBody.innerHTML = "";
 
   expensesData.forEach((expense, index) => {
     const row = document.createElement("tr");
@@ -213,7 +222,26 @@ function renderExpenses() {
   });
 }
 
-// إضافة مصروف
+function renderDaysButtons() {
+  const daysContainer = document.querySelector(".days-container");
+  for (let i = 1; i <= 31; i++) {
+    const button = document.createElement("button");
+    button.classList.add("day-btn");
+    button.textContent = `اليوم ${i}`;
+    button.onclick = function() {
+      loadDailySales(i);
+    };
+    daysContainer.appendChild(button);
+  }
+}
+
+function loadDailySales(day) {
+  // جلب المبيعات اليومية من LocalStorage
+  const salesForDay = dailySales[day] || [];
+  products = salesForDay;
+  renderProducts();
+}
+
 function addExpense() {
   const expenseType = prompt("أدخل نوع المصروف:");
   const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
@@ -227,24 +255,22 @@ function addExpense() {
     };
 
     expensesData.push(expense);
-    saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد إضافة المصروف
-    renderExpenses();  // عرض المصروفات في الجدول
+    saveDataToLocalStorage();
+    renderExpenses();
   } else {
     alert("يرجى ملء جميع الحقول بشكل صحيح.");
   }
 }
 
-// حذف المصروف
 function deleteExpense(index) {
   expensesData.splice(index, 1);
-  saveDataToLocalStorage();  // حفظ البيانات بعد حذف المصروف
-  renderExpenses();  // تحديث عرض المصروفات
+  saveDataToLocalStorage();
+  renderExpenses();
 }
 
-// عرض المنتجات في الجدول
 function renderProducts() {
   const tableBody = document.querySelector("#sales-table tbody");
-  tableBody.innerHTML = ""; // مسح الجدول الحالي
+  tableBody.innerHTML = "";
 
   products.forEach((product, index) => {
     const row = document.createElement("tr");
@@ -259,11 +285,10 @@ function renderProducts() {
     tableBody.appendChild(row);
   });
 
-  saveDataToLocalStorage();  // حفظ البيانات في LocalStorage بعد تحديث الجدول
-  updateProductTotal();  // تحديث المجموع بعد إضافة أو تعديل منتج
+  saveDataToLocalStorage();
+  updateProductTotal();
 }
 
-// إضافة منتج
 function addProduct() {
   const productName = prompt("أدخل اسم المنتج:");
   const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
@@ -278,13 +303,12 @@ function addProduct() {
     };
 
     products.push(product);
-    renderProducts();  // تحديث عرض المنتجات بعد الإضافة
+    renderProducts();
   } else {
     alert("يرجى ملء جميع الحقول بشكل صحيح.");
   }
 }
 
-// تحديث المنتج بناءً على التعديل
 function updateProduct(index, field, value) {
   if (field === 'stock') {
     products[index].stock = parseInt(value) || 0;
@@ -294,21 +318,20 @@ function updateProduct(index, field, value) {
     products[index].price = parseFloat(value) || 0;
   }
 
-  saveDataToLocalStorage();  // حفظ التعديلات في LocalStorage
-  updateProductTotal();  // تحديث الإجمالي بناءً على التعديل
+  saveDataToLocalStorage();
+  updateProductTotal();
 }
 
-// حذف منتج
 function deleteProduct(index) {
   products.splice(index, 1);
-  saveDataToLocalStorage();  // حفظ البيانات بعد الحذف
-  renderProducts();  // تحديث عرض المنتجات
+  saveDataToLocalStorage();
+  renderProducts();
 }
 
-// حفظ البيانات في LocalStorage عند تحميل الصفحة
 window.onload = function() {
-  renderProducts();  // عرض المنتجات عند تحميل الصفحة
-  renderExpenses();  // عرض المصروفات عند تحميل الصفحة
+  renderDaysButtons();
+  renderProducts();
+  renderExpenses();
 };
 </script>
 
