@@ -334,10 +334,43 @@ function deleteProduct(index) {
   renderProducts();
 }
 
+// إضافة مصروف
+function addExpense() {
+  const expenseType = prompt("أدخل نوع المصروف:");
+  const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
+  const expenseNotes = prompt("أدخل ملاحظات المصروف:");
+
+  if (expenseType && !isNaN(expensePrice)) {
+    const expense = {
+      type: expenseType,
+      price: expensePrice,
+      notes: expenseNotes
+    };
+
+    expensesData.push(expense);
+    saveDataToLocalStorage();
+    renderExpenses();
+  } else {
+    alert("يرجى ملء جميع الحقول بشكل صحيح.");
+  }
+}
+
+// حذف مصروف
+function deleteExpense(index) {
+  expensesData.splice(index, 1);
+  saveDataToLocalStorage();
+  renderExpenses();
+}
+
+// زر الرجوع إلى الصفحة الرئيسية (أو الصفحة السابقة)
+function goBack() {
+  window.history.back();  // إرجاع الصفحة إلى الوراء
+}
+
 window.onload = function() {
   renderDaysButtons();  // عرض أزرار الأيام
-  renderProducts();
-  renderExpenses();
+  renderProducts();     // عرض المنتجات عند تحميل الصفحة
+  renderExpenses();     // عرض المصروفات عند تحميل الصفحة
 };
 </script>
 
