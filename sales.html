@@ -186,6 +186,7 @@ function updateProductTotal() {
   document.getElementById('total-sales-value').textContent = totalSalesValue.toFixed(2);
 }
 
+// حساب استلام وتسليم الصندوق والمصروفات
 function calculateReceipt() {
   const receipt = parseFloat(document.getElementById('box-receipt').value) || 0;
   const distribution = parseFloat(document.getElementById('box-distribution').value) || 0;
@@ -222,6 +223,7 @@ function renderExpenses() {
   });
 }
 
+// عرض أزرار الأيام
 function renderDaysButtons() {
   const daysContainer = document.querySelector(".days-container");
   for (let i = 1; i <= 31; i++) {
@@ -235,6 +237,7 @@ function renderDaysButtons() {
   }
 }
 
+// تحميل المبيعات اليومية عند اختيار اليوم
 function loadDailySales(day) {
   // جلب المبيعات اليومية من LocalStorage
   const salesForDay = dailySales[day] || [];
@@ -242,53 +245,7 @@ function loadDailySales(day) {
   renderProducts();
 }
 
-function addExpense() {
-  const expenseType = prompt("أدخل نوع المصروف:");
-  const expensePrice = parseFloat(prompt("أدخل سعر المصروف (شيكل):"));
-  const expenseNotes = prompt("أدخل ملاحظات المصروف:");
-
-  if (expenseType && !isNaN(expensePrice)) {
-    const expense = {
-      type: expenseType,
-      price: expensePrice,
-      notes: expenseNotes
-    };
-
-    expensesData.push(expense);
-    saveDataToLocalStorage();
-    renderExpenses();
-  } else {
-    alert("يرجى ملء جميع الحقول بشكل صحيح.");
-  }
-}
-
-function deleteExpense(index) {
-  expensesData.splice(index, 1);
-  saveDataToLocalStorage();
-  renderExpenses();
-}
-
-function renderProducts() {
-  const tableBody = document.querySelector("#sales-table tbody");
-  tableBody.innerHTML = "";
-
-  products.forEach((product, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td contenteditable="true">${product.name}</td>
-      <td><input type="number" value="${product.stock}" min="0" onchange="updateProduct(${index}, 'stock', this.value)"></td>
-      <td><input type="number" value="${product.sales}" min="0" onchange="updateProduct(${index}, 'sales', this.value)"></td>
-      <td><input type="number" value="${product.price}" min="0" onchange="updateProduct(${index}, 'price', this.value)"></td>
-      <td>${(product.sales * product.price).toFixed(2)}</td>
-      <td><button class="delete-btn" onclick="deleteProduct(${index})">حذف</button></td>
-    `;
-    tableBody.appendChild(row);
-  });
-
-  saveDataToLocalStorage();
-  updateProductTotal();
-}
-
+// إضافة منتج
 function addProduct() {
   const productName = prompt("أدخل اسم المنتج:");
   const productPrice = parseFloat(prompt("أدخل سعر المنتج (شيكل):"));
@@ -303,12 +260,22 @@ function addProduct() {
     };
 
     products.push(product);
+    // إضافة المنتج لجميع الأيام
+    for (let i = 1; i <= 31; i++) {
+      if (!dailySales[i]) {
+        dailySales[i] = [];
+      }
+      dailySales[i].push(product);
+    }
+
+    saveDataToLocalStorage();
     renderProducts();
   } else {
     alert("يرجى ملء جميع الحقول بشكل صحيح.");
   }
 }
 
+// تحديث المنتج بناءً على التعديل
 function updateProduct(index, field, value) {
   if (field === 'stock') {
     products[index].stock = parseInt(value) || 0;
@@ -322,6 +289,7 @@ function updateProduct(index, field, value) {
   updateProductTotal();
 }
 
+// حذف منتج
 function deleteProduct(index) {
   products.splice(index, 1);
   saveDataToLocalStorage();
@@ -329,7 +297,7 @@ function deleteProduct(index) {
 }
 
 window.onload = function() {
-  renderDaysButtons();
+  renderDaysButtons();  // عرض أزرار الأيام
   renderProducts();
   renderExpenses();
 };
